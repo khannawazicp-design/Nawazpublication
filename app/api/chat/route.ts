@@ -1,30 +1,21 @@
 export async function POST(req: Request) {
-  const { message } = await req.json();
-  const key = process.env.OPENAI_API_KEY;
+  const { message, lang } = await req.json();
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return Response.json({ reply: "Key nahi mili" });
 
-  // Agar real key nahi hai to bina key ke hi explain karo
-  if (!key || key.includes("dummy")) {
-    return Response.json({
-      reply: `**${message}** ka Topic:
+  const langPrompt = lang === "ur"? "Explain in detailed Urdu (Roman Urdu + some Urdu script), with Definition, Types, Formulas, Example, Exam Tip for 9th-12th" : lang === "ps"? "Explain in Pashto detailed" : "Explain in detailed English";
 
-1. **Definition:** Ye ${message} ka important chapter hai.
-2. **Main Points:** Isme formulas, diagrams aur examples shamil hain.
-3. **Exam Tip:** Is topic se har saal 5-10 marks ka sawal aata hai.
-4. **Nawaz Notes:** Hamare notes me ye topic Urdu, English aur Pashto teeno me to-the-point samjhaya gaya hai.
-
-Mazeed detail ke liye WhatsApp par rabta karen.`
-    });
-  }
-
-  // Agar real OpenAI key hai to ChatGPT se jawab lo
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: `Explain ${message} in simple Urdu + English for 9th-12th students, to-the-point` }],
-    }),
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: `You are Nawaz Publication AI Teacher. ${langPrompt}. Be to-the-point.` },
+        { role: "user", content: message }
+      ]
+    })
   });
   const data = await res.json();
-  return Response.json({ reply: data.choices?.[0]?.message?.content || "Error" });
+  return Response.json({ reply: data.choices?.[0]?.message?.content || "AI Error" });
 }
