@@ -1,7 +1,7 @@
-export default function RootLayout(props: { children: any }) {
+export default function RootLayout(props: any) {
   return (
     <html lang="en">
-      <body style={{ margin: "0", padding: "0", background: "#f8fafc" }}>
+      <body style={{ margin: "0", padding: "0" }}>
         {props.children}
       </body>
     </html>
