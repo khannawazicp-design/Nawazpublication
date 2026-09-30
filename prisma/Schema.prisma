@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  email String @unique
+  passwordHash String
+  name String?
+  role String @default("USER")
+  createdAt DateTime @default(now())
+  lastLogin DateTime?
+  dailyPoints Int @default(10000)
+  usedPoints Int @default(0)
+  lastReset DateTime @default(now())
+  searches SearchHistory[]
+  topics SavedTopic[]
+}
+
+model SearchHistory {
+  id String @id @default(cuid())
+  userId String
+  query String
+  createdAt DateTime @default(now())
+}
+
+model SavedTopic {
+  id String @id @default(cuid())
+  userId String
+  subject String
+  topic String
+  content Json
+  createdAt DateTime @default(now())
+}
+
+model SystemSettings {
+  id String @id @default(cuid())
+  websiteName String @default("NawazPublication")
+  freeDailyPoints Int @default(10000)
+  easypaisaNumber String @default("03043324836")
+  watermarkText String @default("NawazPublication")
+  websiteUrl String @default("https://nawazpublication.com")
+  footerText String @default("NawazPublication | AI-Powered Educational Resources")
+}
