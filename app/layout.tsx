@@ -1,9 +1,1 @@
-export default function RootLayout(props: any) {
-  return (
-    <html lang="en">
-      <body style={{ margin: "0", padding: "0", background: "#f8fafc" }}>
-        {props.children}
-      </body>
-    </html>
-  );
-}
+export default function RootLayout(props:any){return<html lang="en"><body>{props.children}</body></html>}
