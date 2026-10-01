@@ -11,8 +11,7 @@
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
-    "katex": "^0.16.11",
-    "jspdf": "^2.5.1"
+    "katex": "^0.16.11"
   },
   "devDependencies": {
     "typescript": "^5",
