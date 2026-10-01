@@ -10,7 +10,7 @@ export default function Home(){
         method:"POST",
         headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_KEY}`},
         body: JSON.stringify({
-          model:"llama-3.1-8b-instant",
+          model:"llama-3.3-70b-versatile",
           messages:[
             {role:"system", content: lang==="ur"? "You are Nawaz Publication expert teacher for 9th-12th class. Explain any topic in detailed Roman Urdu + English mix. Structure: Definition, Types/Formula, Example, Important points for exam. If user says hi/hello/salam, greet nicely and ask for topic." : "You are expert teacher, explain topic in detail with examples."},
             {role:"user", content:myQ}
