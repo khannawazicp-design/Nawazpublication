@@ -1,5 +1,20 @@
-"dependencies": {
+{
+  "name": "nawaz-academy",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
     "next": "15.0.3",
-    "react": "^18",
-    "katex": "^0.16.11"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "typescript": "^5"
+  }
 }
