@@ -1,31 +1,36 @@
+const apiKey = "AAPKI_NAYI_GROQ_KEY_YAHAN"; // yahan wahi key jo ab chal rahi hai
+
 export async function POST(req: Request) {
-  try {
-    const { question } = await req.json();
+  const { message } = await req.json();
 
-    const apiKey = "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";
+  // Language detect
+  const isUrdu = /[\u0600-\u06FF]/.test(message);
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-oss-20b",
-        messages: [
-          { role: "system", content: "You are Nawaz Academy Expert Teacher. Answer in the same language as the question, verified, 4-6 points." },
-          { role: "user", content: question }
-        ]
-      })
-    });
+  const systemPrompt = `
+  You are "AI Ustad" - Pakistan's most helpful AI.
+    - If user writes in Urdu, reply in beautiful Urdu.
+    - If user writes in English, reply in professional English.
+    - You can do: Notes, Posters, Research, Video Scripts, Business Ideas.
+    - Always reply in a professional, clean format like ChatGPT with headings and points.
+    - Keep tone respectful and "Ustad" style.
+  `;
 
-    const data = await response.json();
-    if (!data.choices) {
-      return Response.json({ answer: "Groq Error: " + JSON.stringify(data) });
-    }
-    return Response.json({ answer: data.choices[0].message.content });
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "openai/gpt-oss-20b",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ],
+      temperature: 0.7,
+    }),
+  });
 
-  } catch (e: any) {
-    return Response.json({ answer: "Error: " + e.message });
-  }
+  const data = await res.json();
+  return Response.json({ reply: data.choices?.[0]?.message?.content || "Ustad hazir hai, dobara puchen." });
 }
