@@ -1,18 +1,19 @@
 export async function POST(req: Request) {
-  const { message, lang } = await req.json();
-  const key = process.env.GROQ_API_KEY;
-  if (!key) return Response.json({ reply: "API Key missing" });
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+  const { question } = await req.json();
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+    },
     body: JSON.stringify({
       model: "llama-3.1-8b-instant",
       messages: [
-        { role: "system", content: lang==="ur"? "You are Nawaz Publication expert. Explain in detailed Roman Urdu with definition, formulas, example" : "Explain in detail" },
-        { role: "user", content: message }
+        { role: "system", content: `Tum Nawaz Academy ke Expert Teacher ho. RULES: 1. Jis zaban me sawal usi me jawab do. 2. Sirf usi topic ka jawab do jis ka sawal ho. 3. Jawab 4-6 conceptual points me do, faltu kahani nahi. 4. Sahi aur verified jawab do, ghalat kabhi mat do.` },
+        { role: "user", content: question }
       ]
     })
   });
-  const data = await res.json();
-  return Response.json({ reply: data.choices?.[0]?.message?.content || "AI Error" });
+  const data = await response.json();
+  return Response.json({ answer: data.choices?.[0]?.message?.content || "Jawab nahi mila" });
 }
