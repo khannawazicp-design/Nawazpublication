@@ -1,10 +1,55 @@
 "use client";
 import { useState } from "react";
-const KEY="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";
-const SITE="nawazpublication-rkh4.vercel.app";
-export default function Home(){
-  const [q,setQ]=useState(""); const [list,setList]=useState<any[]>([]); const [load,setLoad]=useState(false);
-  function pdf(t:string){const w=window.open("","_blank"); if(!w)return; w.document.write(`<html><body style="padding:20px"><div style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.07;transform:rotate(-30deg);font-size:30px;font-weight:bold;pointer-events:none">${Array(40).fill(SITE).join(" ")}</div><h2>${SITE}</h2><hr><pre style="white-space:pre-wrap;font-family:sans-serif">${t.replace(/</g,"&lt;")}</pre><hr><button onclick="window.print()">Save PDF</button></body></html>`); w.document.close();}
-  async function ask(){if(!q.trim())return; const myQ=q; setQ(""); setList(s=>[...s,{u:true,t:myQ}]); setLoad(true); try{const r=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+KEY},body:JSON.stringify({model:"openai/gpt-oss-20b",messages:[{role:"system",content:"You are Nawaz Publication teacher. Same language as user."},{role:"user",content:myQ}]})}); const d=await r.json(); setList(s=>[...s,{u:false,t:d.choices[0].message.content}]);}catch(e:any){setList(s=>[...s,{u:false,t:e.message}]);} setLoad(false);}
-  return(<div style={{minHeight:"100vh",background:"#f8f8f8",display:"flex",flexDirection:"column"}}><div style={{flex:1,padding:20,maxWidth:700,margin:"0 auto",width:"100%"}}><h1 style={{textAlign:"center"}}>Nawaz Publication</h1><p style={{textAlign:"center",fontSize:12}}>{SITE}</p>{list.map((m,i)=><div key={i} style={{background:"#fff",padding:14,borderRadius:12,marginBottom:10}}>{m.t}<br/>{!m.u&&<button onClick={()=>pdf(m.t)} style={{marginTop:8,background:"#111",color:"#fff",border:"none",padding:"6px 12px",borderRadius:12}}>PDF</button>}</div>)}{load&&<div>Likha ja raha hai...</div>}</div><div style={{padding:12,background:"#fff",position:"sticky",bottom:0,display:"flex",maxWidth:700,margin:"0 auto",width:"100%"}}><input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&ask()} style={{flex:1,padding:12,borderRadius:20,border:"1px solid #ddd"}} placeholder="Sawal likhen..."/><button onClick={ask} style={{marginLeft:8,background:"#111",color:"#fff",borderRadius:20,padding:"0 18px"}}>↑</button></div></div>)
+
+export default function Home() {
+  const [q, setQ] = useState("");
+  const [ans, setAns] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function askAI() {
+    if(!q.trim()) return;
+    setLoading(true);
+    setAns("");
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q })
+      });
+      const data = await res.json();
+      setAns(data.answer);
+    } catch(e) {
+      setAns("Error: Dobara koshish karen");
+    }
+    setLoading(false);
+  }
+
+  return (
+    <main className="min-h-screen bg-[#FFFBEB] text-gray-900">
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+          <h1 className="text-2xl font-black">Nawaz<span className="text-amber-600">Academy</span></h1>
+          <a href="https://wa.me/923000000000" className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold">WhatsApp</a>
+        </div>
+      </header>
+
+      <section className="max-w-6xl mx-auto px-4 py-12 text-center">
+        <h2 className="text-4xl md:text-6xl font-black">AI-Powered Notes for <br/><span className="text-amber-600">Every Student</span></h2>
+        <p className="mt-3 text-gray-600">Maths, Physics, Chemistry, Islamiat, Urdu - Har sawal ka sahi jawab</p>
+
+        <div className="mt-8 max-w-2xl mx-auto bg-white p-5 rounded-2xl shadow-xl text-left">
+          <div className="flex gap-2">
+            <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter' && askAI()} placeholder="Sawal likhen... e.g. Fatah Makkah kab hua?" className="border flex-1 px-4 py-3 rounded-xl outline-none" />
+            <button onClick={askAI} className="bg-black text-white px-6 py-3 rounded-xl font-bold">{loading? "..." : "Search"}</button>
+          </div>
+          {ans && <div className="mt-4 bg-[#FFFBEB] p-4 rounded-xl whitespace-pre-wrap leading-7">{ans}</div>}
+        </div>
+      </section>
+
+      <footer className="bg-black text-white text-center py-8">
+        <p className="font-bold">Nawaz Academy © 2026</p>
+        <p className="text-sm text-gray-400">Sahi Jawabat | To-the-point | AI Powered</p>
+      </footer>
+    </main>
+  );
 }
