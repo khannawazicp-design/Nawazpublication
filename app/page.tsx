@@ -20,9 +20,16 @@ export default function Page() {
     setLoading(false);
   };
 
-  const cleanMath = (t: string) => {
-    return t.replace(/\\begin\{pmatrix\}/g, "\n[ ").replace(/\\end\{pmatrix\}/g, " ]\n").replace(/&/g, "   ").replace(/\\\\/g, "\n").replace(/\*\*/g, "").replace(/###/g, "").replace(/\$/g, "").replace(/\\\[|\\\]|\\\(|\\\)/g, "");
-  };
+    const cleanMath = (t: string) => {
+  return t
+    .replace(/\\begin\{.*?\}/g, "[")
+    .replace(/\\end\{.*?\}/g, "]")
+    .replace(/\\[a-z]+/g, "")
+    .replace(/\{|\}/g, "")
+    .replace(/\$/g, "")
+    .replace(/_/g, "")
+    .replace(/\*\*/g, "");
+}
 
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'Arial', background: '#f5f5f5' }}>
