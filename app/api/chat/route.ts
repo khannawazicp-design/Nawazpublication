@@ -1,15 +1,21 @@
 export async function POST(req: Request) {
   try {
     const { message, image } = await req.json();
-    // Fallback key for now, will work even if Vercel env missing
     const apiKey = process.env.GROQ_API_KEY || "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";
 
-    let model = "llama3-8b-8192";
-    let messages: any = [{ role: "system", content: "You are NawazAcademy AI Ustad. Answer in simple text. Never use LaTeX like \\begin, \\end. For matrix write like [ [a,b],[c,d] ]." }];
+    // NEW MODELS 2026
+    let model = "llama-3.1-8b-instant";
+    let messages: any = [{ role: "system", content: "You are NawazAcademy AI Ustad. Simple plain text. No LaTeX like \\begin." }];
 
     if (image) {
       model = "llama-3.2-11b-vision-preview";
-      messages.push({ role: "user", content: [{ type: "text", text: message || "Is tasveer ki wazahat karen" }, { type: "image_url", image_url: { url: image } }] });
+      messages.push({
+        role: "user",
+        content: [
+          { type: "text", text: message || "Is tasveer ki wazahat karen" },
+          { type: "image_url", image_url: { url: image } }
+        ]
+      });
     } else {
       messages.push({ role: "user", content: message });
     }
