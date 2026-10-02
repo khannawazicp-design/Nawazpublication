@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "openai/gpt-oss-20b",
         messages: [
           { role: "system", content: "You are Nawaz Academy Expert Teacher. Answer in the same language as the question, verified, 4-6 points." },
           { role: "user", content: question }
