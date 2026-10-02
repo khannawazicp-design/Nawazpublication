@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "llama-3.3-70b-versatile",
         messages: [
           { role: "system", content: "You are Nawaz Academy Expert Teacher. Answer in the same language as the question, verified, 4-6 points." },
           { role: "user", content: question }
