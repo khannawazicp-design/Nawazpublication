@@ -1,30 +1,85 @@
 "use client";
-import { useState } from "react";
-export default function Home(){
-  const [q,setQ]=useState("");const [ans,setAns]=useState("");const [loading,setLoading]=useState(false);
-  async function askAI(){
-    if(!q.trim()) return; setLoading(true); setAns("");
-    try{
-      const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:q})});
-      const data=await res.json(); setAns(data.answer||"Jawab nahi mila");
-    }catch(e:any){setAns("Error: "+e.message)} setLoading(false);
-  }
-  return(
-    <main style={{fontFamily:'system-ui',background:'#FFFBEB',minHeight:'100vh'}}>
-      <header style={{background:'white',padding:'12px 20px',display:'flex',justifyContent:'space-between',boxShadow:'0 1px 3px rgba(0,0,0,0.1)'}}>
-        <h1 style={{fontWeight:900,margin:0,fontSize:'22px'}}>Nawaz<span style={{color:'#d97706'}}>Academy</span></h1>
-        <a href="https://wa.me/923000000000" style={{background:'#16a34a',color:'white',padding:'8px 14px',borderRadius:'20px',textDecoration:'none',fontWeight:'bold'}}>WhatsApp</a>
-      </header>
-      <section style={{maxWidth:'650px',margin:'0 auto',padding:'30px 20px',textAlign:'center'}}>
-        <h2 style={{fontSize:'32px',fontWeight:900}}>AI-Powered Notes for<br/><span style={{color:'#d97706'}}>Every Student</span></h2>
-        <div style={{background:'white',padding:'16px',borderRadius:'16px',marginTop:'24px',boxShadow:'0 8px 20px rgba(0,0,0,0.08)',textAlign:'left'}}>
-          <div style={{display:'flex',gap:'8px'}}>
-            <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==='Enter'&&askAI()} placeholder="Sawal likhen..." style={{flex:1,border:'1px solid #ddd',padding:'12px',borderRadius:'10px'}}/>
-            <button onClick={askAI} style={{background:'black',color:'white',padding:'12px 18px',borderRadius:'10px',border:'none',fontWeight:'bold'}}>{loading?"...":"Search"}</button>
-          </div>
-          {ans&&<div style={{marginTop:'14px',background:'#FFFBEB',padding:'14px',borderRadius:'10px',whiteSpace:'pre-wrap',lineHeight:'1.6'}}>{ans}</div>}
+import { useState, useEffect } from "react";
+
+export default function Page() {
+  const [input, setInput] = useState("");
+  const [chats, setChats] = useState<any[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const quickActions = ["Poster Banao 🎨", "Research Karo 🔍", "Video Script 🎥", "Notes Banao 📚"];
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim()) return;
+    const newChats = [...chats, { role: "user", content: text }];
+    setChats(newChats);
+    setInput("");
+    setLoading(true);
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      body: JSON.stringify({ message: text }),
+    });
+    const data = await res.json();
+    const finalChats = [...newChats, { role: "ai", content: data.reply }];
+    setChats(finalChats);
+    setHistory([{ title: text.slice(0, 25), chats: finalChats },...history]);
+    setLoading(false);
+  };
+
+  return (
+    <div className="flex h-screen bg-[#f9f9f5]">
+      {/* Sidebar - ChatGPT Style */}
+      <div className="w-[260px] bg-[#171717] text-white p-3 hidden md:flex flex-col">
+        <button onClick={() => setChats([])} className="bg-white/10 p-3 rounded-lg mb-4">+ New Chat</button>
+        <div className="flex-1 overflow-y-auto">
+          <p className="text-xs text-gray-400 mb-2">Chat History</p>
+          {history.map((h, i) => (
+            <div key={i} onClick={() => setChats(h.chats)} className="p-2 text-sm truncate cursor-pointer hover:bg-white/10 rounded">{h.title}</div>
+          ))}
         </div>
-      </section>
-    </main>
-  )
+        <div className="border-t border-white/10 pt-3">
+          <p className="font-bold">NawazAcademy</p>
+          <p className="text-xs text-yellow-500">AI Ustad Dashboard</p>
+        </div>
+      </div>
+
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col">
+        <header className="p-4 border-b bg-white flex justify-between items-center">
+          <h1 className="font-bold text-xl">Nawaz<span className="text-orange-500">Academy</span> - AI Ustad</h1>
+          <a href="https://wa.me/923000000000" className="bg-green-600 text-white px-4 py-1 rounded-full text-sm">WhatsApp</a>
+        </header>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {chats.length === 0? (
+            <div className="text-center mt-20">
+              <h2 className="text-4xl font-bold">AI-Powered Ustad <br/><span className="text-orange-500">for Everyone</span></h2>
+              <p className="text-gray-500 mt-3">Poster, Research, Video, Notes - Sab kuch ek jagah</p>
+              <div className="grid grid-cols-2 gap-2 max-w-lg mx-auto mt-8">
+                {quickActions.map(q => (
+                  <button key={q} onClick={() => sendMessage(q)} className="p-3 bg-white rounded-xl shadow border hover:bg-gray-50">{q}</button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            chats.map((c, i) => (
+              <div key={i} className={`p-4 rounded-xl max-w-3xl ${c.role === 'user'? 'bg-black text-white ml-auto' : 'bg-white shadow border'}`}>
+                <pre className="whitespace-pre-wrap font-sans">{c.content}</pre>
+              </div>
+            ))
+          )}
+          {loading && <p className="text-gray-400">AI Ustad likh raha hai...</p>}
+        </div>
+
+        <div className="p-4 bg-white border-t">
+          <div className="flex max-w-3xl mx-auto gap-2">
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendMessage(input)} placeholder="English ya Urdu me kuch bhi puchen..." className="flex-1 p-3 border rounded-full outline-none" />
+            <button onClick={() => sendMessage(input)} className="bg-black text-white px-6 rounded-full">Search</button>
+          </div>
+          <p className="text-center text-xs text-gray-400 mt-2">English search = English jawab, Urdu search = Urdu jawab</p>
+        </div>
+      </div>
+    </div>
+  );
 }
