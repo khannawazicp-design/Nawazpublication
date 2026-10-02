@@ -1,36 +1,40 @@
-const apiKey = "AAPKI_NAYI_GROQ_KEY_YAHAN"; // yahan wahi key jo ab chal rahi hai
-
 export async function POST(req: Request) {
-  const { message } = await req.json();
+  try {
+    const { message } = await req.json();
+    const apiKey = process.env.GROQ_API_KEY || "gsk_YAHAN_APNI_NAYI_KEY_LIKHEN";
 
-  // Language detect
-  const isUrdu = /[\u0600-\u06FF]/.test(message);
+    const isUrdu = /[\u0600-\u06FF]/.test(message);
 
-  const systemPrompt = `
-  You are "AI Ustad" - Pakistan's most helpful AI.
-    - If user writes in Urdu, reply in beautiful Urdu.
-    - If user writes in English, reply in professional English.
-    - You can do: Notes, Posters, Research, Video Scripts, Business Ideas.
-    - Always reply in a professional, clean format like ChatGPT with headings and points.
-    - Keep tone respectful and "Ustad" style.
-  `;
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-oss-20b",
+        messages: [
+          {
+            role: "system",
+            content: `You are AI Ustad - An expert for NawazAcademy.
+            Rule: If user writes in Urdu script, reply in Urdu. If English, reply in English.
+            Be professional like ChatGPT, use headings, bullet points.
+            You can do: Notes, Poster text, Research, Video scripts for any person, not just students.`
+          },
+          { role: "user", content: message }
+        ],
+      }),
+    });
 
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "openai/gpt-oss-20b",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: message }
-      ],
-      temperature: 0.7,
-    }),
-  });
+    const data = await response.json();
 
-  const data = await res.json();
-  return Response.json({ reply: data.choices?.[0]?.message?.content || "Ustad hazir hai, dobara puchen." });
+    if (!response.ok) {
+      return Response.json({ reply: `Groq Error: ${data.error?.message}` });
+    }
+
+    return Response.json({ reply: data.choices[0].message.content });
+
+  } catch (e: any) {
+    return Response.json({ reply: "Server Error: " + e.message });
+  }
 }
