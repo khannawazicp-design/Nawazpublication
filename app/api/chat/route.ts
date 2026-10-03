@@ -3,34 +3,37 @@ export async function POST(req: Request) {
     const { message, image } = await req.json();
     const apiKey = process.env.GROQ_API_KEY;
 
-    let model = "llama-3.1-8b-instant";
-    let messages:any;
+    if (!apiKey) {
+      return Response.json({ reply: "Vercel me GROQ_API_KEY lagi hi nahi hai! Settings > Env Vars check karo" });
+    }
 
-    if (image) {
+    let model = "llama-3.1-8b-instant";
+    let messages:any = [
+      { role: "system", content: "You are NawazAcademy AI. Plain text only." },
+      { role: "user", content: message || "hi" }
+    ];
+
+    if(image){
       model = "meta-llama/llama-4-maverick-17b-128e-instruct";
       messages = [
-        { role: "system", content: "You are NawazAcademy AI Ustad. Explain image in plain simple text. Never use **, ##, ```." },
-        { role: "user", content: [
-          { type: "text", text: message || "Is tasveer ko detail me samjhao" },
-          { type: "image_url", image_url: { url: image } }
-        ]}
-      ];
-    } else {
-      messages = [
-        { role: "system", content: "You are NawazAcademy AI Ustad. Give detailed answer in plain text. NEVER use **, ##, ```." },
-        { role: "user", content: message }
+        { role: "system", content: "Explain image in plain text." },
+        { role: "user", content: [{type:"text", text: message}, {type:"image_url", image_url:{url:image}}] }
       ];
     }
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, messages, max_tokens: 2000 })
+      body: JSON.stringify({ model, messages, max_tokens: 1000 })
     });
 
     const data = await res.json();
-    let reply = data.choices?.[0]?.message?.content || data.error?.message || "Jawab nahi mila";
-    reply = reply.replace(/\*\*/g,"").replace(/##/g,"").replace(/```/g,"");
+    if (data.error) {
+      // Ye batayega kaunsi key use ho rahi hai
+      return Response.json({ reply: `Groq Error: ${data.error.message} | Key jo Vercel use kar raha hai uske akhri 4 harf:...${apiKey.slice(-4)}` });
+    }
+
+    let reply = data.choices?.[0]?.message?.content || "No reply";
     return Response.json({ reply });
-  } catch (e:any) { return Response.json({ reply: "Error: " + e.message }); }
+  } catch (e:any) { return Response.json({ reply: "Code Error: " + e.message }); }
 }
