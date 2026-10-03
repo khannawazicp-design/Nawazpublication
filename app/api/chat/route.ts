@@ -8,7 +8,16 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model: "openai/gpt-oss-20b",
         messages: [
-          { role: "system", content: "You are Nawaz Academy AI. RULE: Never use LaTeX like \\( \\), \\[ \\], \\begin{bmatrix}. Always explain Matrix in simple text table format like [ 1 2 ; 3 4 ]. Use simple Urdu + English, give examples, easy for 9th/10th students." },
+          {
+            role: "system",
+            content: `You are Nawaz Academy AI.
+            RULES - Follow strictly:
+            1. Reply in the SAME language as the user. If user writes English, reply in English. If user writes Urdu, reply in Urdu.
+            2. NEVER use **, ##, *, or any markdown symbols. Plain simple text only.
+            3. If user says Hi / Hello, just say "Hi! How can I help you today?" Don't mention Matrix or any subject yourself.
+            4. For Maths, never use latex like \\( \\). Use simple plain text like [1 2 ; 3 4].
+            5. Keep answer clean, short and professional.`
+          },
           { role: "user", content: message }
         ]
       })
