@@ -1,39 +1,30 @@
-"use client"
-import { useState, useEffect, useRef } from "react"
-type Msg = { q: string, a: string, diagram: string | null }
-type Chat = { id: string, title: string, msgs: Msg[] }
+// makeRealDiagram والا فنکشن اس سے بدل دیں
 
-function makeRealDiagram(topic: string) {
-  const clean = topic.replace(/class \d+|diagram|explain/gi, "").trim()
-  const prompt = `Realistic detailed textbook diagram of ${clean}, biology book illustration, labeled cross section, colorful, high detail, white background, professional educational, 4k`
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=768&model=flux&enhance=true&nologo=true&seed=${Date.now()}`
-}
+function getRealBookDiagram(topic: string) {
+  const t = topic.toLowerCase()
 
-export default function Home() {
-  //... آپ کا باقی سارا کوڈ وہی رہے گا...
-  // صرف send() فنکشن یہ والا لگائیں:
-
-  async function send() {
-    if (!input.trim()) return;
-    const q = input; setInput(""); setLoading(true)
-
-    // پہلے میسج بھیجو بغیر ڈایا گرام کے
-    setChats(p => p.map(c => c.id === activeId? {...c, msgs: [...c.msgs, { q, a: "...", diagram: null }] } : c))
-
-    const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ message: q }) })
-    const d = await res.json()
-
-    // ذہین چیک: اگر ضرورت ہوئی تو ہی ڈایا گرام بناؤ
-    let diagramUrl = null
-    if (d.needsDiagram) {
-      diagramUrl = makeRealDiagram(q)
-    }
-
-    setChats(p => p.map(c => c.id === activeId? {...c, msgs: c.msgs.map((m, i) => i === c.msgs.length - 1? {...m, a: d.reply, diagram: diagramUrl } : m) } : c))
-    setLoading(false)
+  // یہ ہماری کتابوں والی اصلی ڈایا گرام ہیں
+  const realDiagrams: any = {
+    "photosynthesis": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/93/Photosynthesis.svg/800px-Photosynthesis.svg.png",
+    "heart": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Diagram_of_the_human_heart.svg/800px-Diagram_of_the_human_heart.svg.png",
+    "cell": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Animal_cell_structure_en.svg/800px-Animal_cell_structure_en.svg.png",
+    "plant cell": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Plant_cell_structure-en.svg/800px-Plant_cell_structure-en.svg.png",
+    "water cycle": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Water_cycle.svg/800px-Water_cycle.svg.png",
+    "dna": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/DNA_chemical_structure.svg/800px-DNA_chemical_structure.svg.png",
+    "atom": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Atom_Diagram.svg/600px-Atom_Diagram.svg.png",
   }
 
-  // باقی ڈیزائن وہی جو آپ کے اسکرین شاٹ میں ہے
-  // جہاں تصویر شو ہوتی ہے:
-  // {m.diagram && <img src={m.diagram}... />}
+  for (let key in realDiagrams) {
+    if (t.includes(key)) {
+      return realDiagrams[key]
+    }
+  }
+  // اگر کوئی نیا ٹاپک ہو تو تب AI والی اصلی کتاب جیسی بنے گی
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(`professional biology textbook labeled diagram of ${topic}, highly detailed, colorful, cross section, white background, educational illustration`)}?width=1024&height=768&model=flux&nologo=true&seed=${Date.now()}`
+}
+
+// اور send() میں:
+let diagramUrl = null
+if (d.needsDiagram) {
+  diagramUrl = getRealBookDiagram(q)
 }
