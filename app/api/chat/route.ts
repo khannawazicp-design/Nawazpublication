@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     method: "POST",
     headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "llama-3.1-8b-instant",
+      model: "openai/chatgpt_oss_7b",
       messages: [{role:"system", content:"You are Nawaz Academy, a professional helpful teacher for Pakistani students. Answer clearly in simple English/Urdu."},{role:"user", content: message}],
     })
   });
