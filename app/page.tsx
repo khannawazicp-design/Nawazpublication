@@ -6,15 +6,15 @@ type Chat = { id: string, title: string, msgs: Msg[] }
 
 function getBookDiagram(topic: string) {
   const t = topic.toLowerCase().trim()
-  const base = "https://image.pollinations.ai/prompt/"
-  const end = "?width=1024&height=768&model=flux&nologo=true&enhance=true"
-  if (t.includes("photosynthesis")) return `${base}highly detailed labeled textbook diagram of photosynthesis, sunlight water co2 chlorophyll glucose oxygen, educational white background${end}&seed=101`
-  if (t.includes("heart")) return `${base}highly detailed labeled textbook diagram of human heart anatomy, educational white background${end}&seed=102`
-  if (t.includes("cell")) return `${base}highly detailed labeled textbook diagram of animal and plant cell structure, educational white background${end}&seed=103`
-  if (t.includes("water")) return `${base}labeled textbook diagram of water cycle evaporation condensation precipitation educational${end}&seed=104`
-  if (t.includes("dna")) return `${base}labeled textbook diagram of DNA double helix structure educational${end}&seed=105`
+  if (t.includes("photosynthesis")) {
+    return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Photosynthesis_en.svg/1024px-Photosynthesis_en.svg.png"
+  }
+  if (t.includes("heart")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Diagram_of_the_human_heart.svg/800px-Diagram_of_the_human_heart.svg.png"
+  if (t.includes("plant cell") || t.includes("cell")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Plant_cell_structure-en.svg/800px-Plant_cell_structure-en.svg.png"
+  if (t.includes("water cycle") || t.includes("water")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Water_cycle.svg/800px-Water_cycle.svg.png"
+  if (t.includes("dna")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/DNA_chemical_structure.svg/800px-DNA_chemical_structure.svg.png"
   const clean = topic.replace(/class \d+|diagram/gi,"").trim()
-  return `${base}professional textbook labeled diagram of ${encodeURIComponent(clean)}, colorful white background educational${end}&seed=${Date.now()}`
+  return `https://image.pollinations.ai/prompt/professional textbook diagram of ${encodeURIComponent(clean)} with arrows and labels explaining process, educational white background?width=1024&height=768&model=flux&nologo=true&seed=10`
 }
 
 function ColorfulAnswer({ text }: { text: string }) {
@@ -37,11 +37,11 @@ export default function Home() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const s = localStorage.getItem("nawaz_torawari_final")
+    const s = localStorage.getItem("nawaz_torawari_final_v2")
     if (s) { const p = JSON.parse(s); setChats(p); setActiveId(p[0]?.id || "") }
     else { const id = Date.now().toString(); setChats([{ id, title: "New Chat", msgs: [] }]); setActiveId(id) }
   }, [])
-  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_torawari_final", JSON.stringify(chats)) }, [chats])
+  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_torawari_final_v2", JSON.stringify(chats)) }, [chats])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chats])
 
   const active = chats.find(c => c.id === activeId)
@@ -74,7 +74,7 @@ export default function Home() {
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}><div style={{ background: '#111', color: '#fff', padding: '10px 16px', borderRadius: '18px 18px 4px 18px', maxWidth: '80%' }}>{m.q}</div></div>
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '12px' }}>
                 <div style={{ flex: '1 1 340px', background: '#fff', border: '1px solid #eee', borderRadius: '16px', padding: '16px' }}><ColorfulAnswer text={m.a} /></div>
-                {m.diagram && <div style={{ flex: '0 1 320px', background: '#fff', borderRadius: '16px', border: '1px solid #eee', padding: '6px' }}><img src={m.diagram} style={{ width: '100%', borderRadius: '12px' }} alt="diagram" /><div style={{ fontSize: '10px', textAlign: 'center', color: '#999', marginTop: '4px' }}>Real Textbook Diagram - NAWAZ ACADEMY TORAWARI</div></div>}
+                {m.diagram && <div style={{ flex: '0 1 320px', background: '#fff', borderRadius: '16px', border: '1px solid #eee', padding: '6px' }}><img src={m.diagram} style={{ width: '100%', borderRadius: '12px', background: '#fff', objectFit: 'contain' }} alt="diagram" /><div style={{ fontSize: '10px', textAlign: 'center', color: '#999', marginTop: '4px' }}>Real Textbook Diagram - NAWAZ ACADEMY TORAWARI</div></div>}
               </div>
             </div>
           ))}
