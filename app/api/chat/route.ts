@@ -3,27 +3,33 @@ export async function POST(req: Request) {
     const { message } = await req.json();
     const lower = message.toLowerCase().trim();
 
-    const blockWords = ["hi", "hello", "salam", "hey", "thanks", "thank you", "ok", "bye", "aoa", "assalam"];
-    const isGreeting = blockWords.includes(lower) || lower.length <= 4;
-
-    if (isGreeting) {
+    const blockWords = ["hi", "hello", "salam", "hey", "thanks", "thank you", "ok", "bye", "aoa"];
+    if (blockWords.includes(lower) || lower.length <= 3) {
       return Response.json({
-        reply: `Assalam-o-Alaikum! Main NAWAZ ACADEMY TORAWARI hoon.\nAap kis class ka topic parhna chahte hain?\n\n- NAWAZ ACADEMY TORAWARI`,
-        needsDiagram: false
+        reply: `السلام علیکم! میں NAWAZ ACADEMY TORAWARI ہوں۔\nآپ کونسی کلاس کا ٹاپک پڑھنا چاہتے ہیں؟\n\n- NAWAZ ACADEMY TORAWARI`,
+        needsDiagram: false,
+        diagramType: null
       });
     }
 
     const key = process.env.GROQ_API_KEY;
-    const diagramWords = ["photosynthesis", "heart", "cell", "atom", "water cycle", "dna", "brain", "kidney", "plant", "leaf", "flower", "mitosis", "digestive", "respiration", "circuit", "structure", "diagram"];
-    const needsDiagram = diagramWords.some(w => lower.includes(w));
+    const allTopics = ["photosynthesis", "heart", "cell", "atom", "water", "dna", "brain", "kidney", "plant", "leaf", "flower", "mitosis", "digestive", "respiration", "circuit", "eye", "ear", "lungs", "soil", "seed", "evaporation", "oxygen", "carbon"];
+    const needsDiagram = allTopics.some(w => lower.includes(w)) || lower.includes("diagram") || lower.includes("structure");
+
+    let diagramType = "general";
+    if (lower.includes("photosynthesis")) diagramType = "photosynthesis";
+    else if (lower.includes("heart")) diagramType = "heart";
+    else if (lower.includes("water") || lower.includes("cycle")) diagramType = "watercycle";
+    else if (lower.includes("cell")) diagramType = "cell";
+    else if (lower.includes("dna")) diagramType = "dna";
+    else if (lower.includes("atom")) diagramType = "atom";
+    else diagramType = lower; // جنرل ٹاپک کے لیے اسی کا نام بھیج دیں گے
 
     let level = "general";
-    if (lower.includes("class 1") || lower.includes("class 2") || lower.includes("class 3")) level = "class 2-3";
-    else if (lower.includes("class 4") || lower.includes("class 5") || lower.includes("class 6") || lower.includes("class 8")) level = "class 5-8";
-    else if (lower.includes("class 9") || lower.includes("class 10") || lower.includes("matric")) level = "class 10";
-    else if (lower.includes("11") || lower.includes("12") || lower.includes("fsc")) level = "second year";
+    if (lower.includes("class 10") || lower.includes("matric")) level = "class 10";
+    else if (lower.includes("class 9")) level = "class 9";
 
-    const systemPrompt = `You are NAWAZ ACADEMY TORAWARI. User level: ${level}. Explain in simple words: Definition, Key Points with numbers, Example. Never use **. End with - NAWAZ ACADEMY TORAWARI`;
+    const systemPrompt = `You are NAWAZ ACADEMY TORAWARI. Level: ${level}. Explain simply: Definition, Key Points numbered, Example. No **. End with - NAWAZ ACADEMY TORAWARI`;
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -35,8 +41,8 @@ export async function POST(req: Request) {
     });
     const data = await res.json();
     const reply = data.choices[0].message.content.replace(/\*\*/g, "");
-    return Response.json({ reply, needsDiagram });
+    return Response.json({ reply, needsDiagram, diagramType: message });
   } catch (e: any) {
-    return Response.json({ reply: "Error: " + e.message, needsDiagram: false });
+    return Response.json({ reply: "Error: " + e.message, needsDiagram: false, diagramType: null });
   }
 }
