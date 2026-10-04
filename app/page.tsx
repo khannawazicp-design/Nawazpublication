@@ -6,17 +6,16 @@ type Chat = { id: string, title: string, msgs: Msg[] }
 
 function getBookDiagram(topic: string) {
   const t = topic.toLowerCase()
-  if (t.includes("photosynthesis")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/93/Photosynthesis.svg/800px-Photosynthesis.svg.png"
-  if (t.includes("heart")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Diagram_of_the_human_heart.svg/800px-Diagram_of_the_human_heart.svg.png"
-  if (t.includes("animal cell")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Animal_cell_structure_en.svg/800px-Animal_cell_structure_en.svg.png"
+  if (t.includes("photosynthesis")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Photosynthesis_en.svg/800px-Photosynthesis_en.svg.png"
+  if (t.includes("heart")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Diagram_of_the_human_heart_%28cropped%29.svg/800px-Diagram_of_the_human_heart_%28cropped%29.svg.png"
+  if (t.includes("animal cell")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Animal_cell_structure_en.svg/800px-Animal_cell_structure_en.svg.png"
   if (t.includes("plant cell") || t.includes("cell")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Plant_cell_structure-en.svg/800px-Plant_cell_structure-en.svg.png"
-  if (t.includes("water cycle") || t.includes("water")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Water_cycle.svg/800px-Water_cycle.svg.png"
-  if (t.includes("dna")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/DNA_chemical_structure.svg/800px-DNA_chemical_structure.svg.png"
+  if (t.includes("water cycle") || t.includes("water")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Water_cycle_blank.svg/800px-Water_cycle_blank.svg.png"
+  if (t.includes("dna")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/DNA-structure-and-bases.png/800px-DNA-structure-and-bases.png"
   if (t.includes("atom")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Atom_Diagram.svg/600px-Atom_Diagram.svg.png"
   if (t.includes("brain")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Gehirn%2C_medial_-_II.svg/800px-Gehirn%2C_medial_-_II.svg.png"
-
-  const clean = topic.replace(/class \d+|diagram|structure/gi, "").trim()
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(`professional textbook labeled diagram of ${clean}, colorful educational illustration, white background, highly detailed`)}?width=1024&height=768&model=flux&nologo=true&seed=${Date.now()}`
+  const clean = topic.replace(/class \d+|diagram/gi, "").trim()
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(`professional textbook labeled diagram of ${clean}, colorful, white background`)}?width=1024&height=768&model=flux&nologo=true&seed=${Date.now()}`
 }
 
 function ColorfulAnswer({ text }: { text: string }) {
@@ -39,11 +38,11 @@ export default function Home() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const s = localStorage.getItem("nawaz_final_v2")
+    const s = localStorage.getItem("nawaz_final_v3")
     if (s) { const p = JSON.parse(s); setChats(p); setActiveId(p[0]?.id || "") }
     else { const id = Date.now().toString(); setChats([{ id, title: "New Chat", msgs: [] }]); setActiveId(id) }
   }, [])
-  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_final_v2", JSON.stringify(chats)) }, [chats])
+  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_final_v3", JSON.stringify(chats)) }, [chats])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chats])
 
   const active = chats.find(c => c.id === activeId)
@@ -52,19 +51,10 @@ export default function Home() {
     if (!input.trim() ||!active) return
     const q = input; setInput(""); setLoading(true)
     setChats(p => p.map(c => c.id === activeId? {...c, title: c.msgs.length === 0? q.slice(0, 24) : c.title, msgs: [...c.msgs, { q, a: "...", diagram: null }] } : c))
-
     const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ message: q }) })
     const d = await res.json()
-
     let diag = null
-    const blockList = ["hi", "hello", "salam", "hey", "thanks", "ok", "bye", "kya haal"];
-    const isGreetingNow = blockList.includes(q.toLowerCase().trim()) || q.trim().length <= 4;
-
-    // صرف اسی صورت میں ڈایا گرام بنے گی جب isGreetingNow false ہو
-    if (d.needsDiagram &&!isGreetingNow) {
-      diag = getBookDiagram(q)
-    }
-
+    if (d.needsDiagram) diag = getBookDiagram(q)
     setChats(p => p.map(c => c.id === activeId? {...c, msgs: c.msgs.map((m, i) => i === c.msgs.length - 1? {...m, a: d.reply, diagram: diag } : m) } : c))
     setLoading(false)
   }
