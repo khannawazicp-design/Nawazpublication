@@ -5,47 +5,66 @@ type Chat = { id: string, title: string, msgs: Msg[] }
 
 function RealDiagram({ type }: { type: string }) {
   const t = (type || "").toLowerCase()
-  if (t.includes("kidney") || t.includes("gurda") || t.includes("kindny")) {
+  if (t.includes("force") || t.includes("newton")) {
     return (
-      <div style={{ background: '#fff', border: '2px solid #f97316', borderRadius: '16px', padding: '14px' }}>
-        <div style={{ fontWeight: 900, textAlign: 'center', color: '#f97316', fontSize: '14px' }}>Human Kidney - Labeled Diagram</div>
-        <div style={{ marginTop: '10px' }}>
-          <svg viewBox="0 0 200 160" style={{ width: '100%', height: 'auto' }}>
-            <path d="M 80 20 C 110 10, 140 30, 135 70 C 130 110, 100 140, 70 130 C 40 120, 30 90, 50 50 Z" fill="#fef3c7" stroke="#f97316" strokeWidth="2"/>
-            <path d="M 90 40 C 110 45, 120 70, 110 95 C 100 115, 80 120, 65 105" fill="#fff7ed" stroke="#fb923c" strokeWidth="1.5"/>
-            <text x="105" y="30" fontSize="8" fontWeight="700" fill="#c2410c">Cortex</text>
-            <text x="105" y="75" fontSize="8" fontWeight="700" fill="#c2410c">Medulla</text>
-            <text x="70" y="110" fontSize="7" fontWeight="600" fill="#9a3412">Renal Pelvis</text>
-            <rect x="50" y="125" width="60" height="12" rx="6" fill="#fed7aa" stroke="#f97316"/>
-            <text x="80" y="133" fontSize="7" textAnchor="middle" fontWeight="700">Ureter</text>
-          </svg>
-          <div style={{ fontSize: '10px', lineHeight: '1.6', background: '#fff7ed', padding: '8px', borderRadius: '8px', marginTop: '6px' }}>
-            <b>1. Renal Cortex:</b> Outer part - filtration starts<br/>
-            <b>2. Renal Medulla:</b> Inner part - concentration<br/>
-            <b>3. Nephron:</b> 1 Million filter units<br/>
-            <b>4. Renal Pelvis:</b> Collects urine<br/>
-            <b>5. Ureter:</b> Takes urine to bladder
-          </div>
+      <div style={{ background: '#fff', border: '2px solid #0ea5e9', borderRadius: '16px', padding: '14px' }}>
+        <div style={{ fontWeight: 900, textAlign: 'center', color: '#0ea5e9' }}>Force - F = m × a</div>
+        <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '10px', marginTop: '8px', fontSize: '11px', textAlign: 'center', fontWeight: 700 }}>
+          Box (5 kg) → Force 10 N → Acceleration 2 m/s²<br/>
+          <span style={{ color: '#0ea5e9' }}>F = m × a | Unit = kg·m/s² = N (Newton)</span>
         </div>
         <div style={{ fontSize: '8px', textAlign: 'center', color: '#999', marginTop: '6px' }}>NAWAZ ACADEMY TORAWARI</div>
       </div>
     )
   }
+  if (t.includes("kidney") || t.includes("gurda")) {
+    return <div style={{ background: '#fff', border: '2px solid #f97316', borderRadius: '16px', padding: '14px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#f97316' }}>Human Kidney</div><div style={{ fontSize: '11px', background: '#fff7ed', padding: '8px', borderRadius: '8px', marginTop: '8px', lineHeight: '1.6' }}><b>Cortex:</b> Outer filtration<br/><b>Medulla:</b> Inner part<br/><b>Nephron:</b> 1 Million filters<br/><b>Ureter:</b> To bladder</div></div>
+  }
   if (t.includes("photo")) {
-    return <div style={{ background: '#fff', border: '2px solid #16a34a', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#16a34a' }}>Photosynthesis Process</div><div style={{ background: '#f0fdf4', borderRadius: '12px', padding: '10px', marginTop: '8px', textAlign: 'center', fontSize: '11px', fontWeight: 700 }}><div style={{ display: 'flex', justifyContent: 'space-around' }}><span>☀️ Sun</span><span>💧 H₂O</span><span>🌬️ CO₂</span></div><div>⬇️</div><div style={{ background: '#22c55e', color: '#fff', padding: '8px', borderRadius: '8px' }}>🍃 LEAF - Chlorophyll</div><div>⬇️</div><div style={{ display: 'flex', gap: '6px' }}><div style={{ flex: 1, background: '#fef3c7', padding: '6px', borderRadius: '8px' }}>Glucose</div><div style={{ flex: 1, background: '#dbeafe', padding: '6px', borderRadius: '8px' }}>O₂</div></div></div></div>
+    return <div style={{ background: '#fff', border: '2px solid #16a34a', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#16a34a' }}>Photosynthesis</div><div style={{ background: '#f0fdf4', padding: '8px', borderRadius: '8px', marginTop: '8px', fontSize: '11px', textAlign: 'center' }}>☀️ + 💧 H₂O + 🌬️ CO₂ → 🍃 Leaf → Glucose + O₂<br/><span style={{ color: '#16a34a', fontWeight: 700 }}>6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</span></div></div>
   }
   if (t.includes("heart")) {
-    return <div style={{ background: '#fff', border: '2px solid #ef4444', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#ef4444' }}>Human Heart</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px', fontSize: '11px' }}><div style={{ background: '#fee2e2', padding: '8px', borderRadius: '8px' }}><b>Right Atrium</b></div><div style={{ background: '#fecaca', padding: '8px', borderRadius: '8px' }}><b>Left Atrium</b></div><div style={{ background: '#ef4444', color: '#fff', padding: '10px', borderRadius: '8px' }}><b>Right Ventricle</b></div><div style={{ background: '#b91c1c', color: '#fff', padding: '10px', borderRadius: '8px' }}><b>Left Ventricle</b></div></div></div>
+    return <div style={{ background: '#fff', border: '2px solid #ef4444', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#ef4444' }}>Human Heart - 4 Chambers</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px', fontSize: '11px' }}><div style={{ background: '#fee2e2', padding: '8px', borderRadius: '8px' }}>Right Atrium</div><div style={{ background: '#fecaca', padding: '8px', borderRadius: '8px' }}>Left Atrium</div><div style={{ background: '#ef4444', color: '#fff', padding: '10px', borderRadius: '8px' }}>Right Ventricle</div><div style={{ background: '#b91c1c', color: '#fff', padding: '10px', borderRadius: '8px' }}>Left Ventricle</div></div></div>
   }
   if (t.includes("cell")) {
-    return <div style={{ background: '#fff', border: '2px solid #8b5cf6', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#8b5cf6' }}>Cell Structure</div><div style={{ border: '2px dashed #8b5cf6', borderRadius: '12px', padding: '12px', marginTop: '8px', background: '#faf5ff', fontSize: '11px' }}>Cell Membrane<br/>Nucleus<br/>Mitochondria<br/>Vacuole</div></div>
+    return <div style={{ background: '#fff', border: '2px solid #8b5cf6', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#8b5cf6' }}>Cell Structure</div><div style={{ border: '2px dashed #8b5cf6', borderRadius: '12px', padding: '12px', marginTop: '8px', background: '#faf5ff', fontSize: '11px' }}>Cell Membrane<br/>Nucleus (Control)<br/>Mitochondria (Powerhouse)<br/>Vacuole</div></div>
   }
-  return <div style={{ background: '#fff', border: '2px solid #111', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 800, textAlign: 'center' }}>{type}</div><div style={{ background: '#f8fafc', padding: '10px', borderRadius: '8px', marginTop: '8px', fontSize: '11px' }}>📚 {type} Diagram</div></div>
+  return <div style={{ background: '#fff', border: '2px solid #111', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 800, textAlign: 'center' }}>{type}</div></div>
 }
 
 function MathText({ text }: { text: string }) {
-  const parts = text.split(/(\$.*?\$)/g)
-  return <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.8', fontSize: '14px' }}>{parts.map((p,i)=> p.startsWith("$") && p.endsWith("$")? <span key={i} style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{p.replaceAll("$","")}</span> : <span key={i}>{p}</span>)}</div>
+  let clean = text.replace(/\\text\{([^}]+)\}/g, "$1").replace(/\\,/g, " ").replace(/\\times/g, " × ").replace(/\*\*/g, "");
+  const matrixRegex = /\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g;
+  clean = clean.replace(matrixRegex, (match, inner) => {
+    const rows = inner.trim().split("\\\\");
+    let html = `<div style="display:inline-block; vertical-align:middle; border-left:2px solid #111; border-right:2px solid #111; border-radius:8px; padding:4px 12px; margin:4px 6px; background:#f8fafc;">`;
+    rows.forEach((row: string) => {
+      const cols = row.split("&");
+      html += `<div style="display:flex; gap:20px; justify-content:center;">`;
+      cols.forEach((col: string) => { html += `<span style="min-width:20px; text-align:center; font-weight:700;">${col.trim()}</span>`; });
+      html += `</div>`;
+    });
+    html += `</div>`;
+    return `__MATRIX_START__${html}__MATRIX_END__`;
+  });
+
+  const parts = clean.split(/(\$[^$]+\$|__MATRIX_START__[\s\S]*?__MATRIX_END__)/g);
+  return (
+    <div style={{ whiteSpace: 'pre-wrap', lineHeight: '2', fontSize: '14.5px', color: '#1e293b' }}>
+      {parts.map((p, i) => {
+        if (p.startsWith("__MATRIX_START__")) {
+          const html = p.replace("__MATRIX_START__", "").replace("__MATRIX_END__", "");
+          return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />;
+        }
+        if (p.startsWith("$") && p.endsWith("$")) {
+          let inside = p.replaceAll("$", "").trim().replace(/\^2/g, "²").replace(/\^3/g, "³");
+          const isEq = inside.includes("=") || inside.includes("×");
+          return <span key={i} style={{ background: isEq? '#eef2ff' : '#f1f5f9', border: isEq? '1px solid #c7d2fe' : '1px solid #e2e8f0', padding: '3px 10px', borderRadius: '8px', fontFamily: 'serif', fontWeight: 800, color: '#1e1b4b', display: 'inline-block', margin: '2px' }}>{inside}</span>;
+        }
+        return <span key={i}>{p}</span>;
+      })}
+    </div>
+  )
 }
 
 export default function Home() {
@@ -60,11 +79,11 @@ export default function Home() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const s = localStorage.getItem("nawaz_fixed_v4_final")
+    const s = localStorage.getItem("nawaz_final_full_v5")
     if (s) { const p = JSON.parse(s); setChats(p); setActiveId(p[0]?.id || "") }
     else { const id = Date.now().toString(); setChats([{ id, title: "New Chat", msgs: [] }]); setActiveId(id) }
   }, [])
-  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_fixed_v4_final", JSON.stringify(chats)) }, [chats])
+  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_final_full_v5", JSON.stringify(chats)) }, [chats])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chats])
   const active = chats.find(c => c.id === activeId)
 
@@ -74,9 +93,11 @@ export default function Home() {
     const finalQ = q || "Explain this image"
     setInput(""); setLoading(true)
     setChats(p => p.map(c => c.id === activeId? {...c, title: c.msgs.length === 0? finalQ.slice(0, 24) : c.title, msgs: [...c.msgs, { q: finalQ, a: "...", diagramType: null, image: preview || undefined }] } : c))
-    const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ message: finalQ, image: imageBase64 }) })
-    const d = await res.json()
-    setChats(p => p.map(c => c.id === activeId? {...c, msgs: c.msgs.map((m,i)=> i===c.msgs.length-1? {...m, a: d.reply, diagramType: d.needsDiagram? d.diagramType : null } : m) } : c))
+    try {
+      const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ message: finalQ, image: imageBase64 }) })
+      const d = await res.json()
+      setChats(p => p.map(c => c.id === activeId? {...c, msgs: c.msgs.map((m,i)=> i===c.msgs.length-1? {...m, a: d.reply, diagramType: d.needsDiagram? d.diagramType : null } : m) } : c))
+    } catch { setChats(p => p.map(c => c.id === activeId? {...c, msgs: c.msgs.map((m,i)=> i===c.msgs.length-1? {...m, a: "Connection error"} : m) } : c)) }
     setPreview(null); setImageBase64(null); setLoading(false)
   }
 
@@ -93,16 +114,16 @@ export default function Home() {
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'system-ui' }}>
       <div style={{ width: '260px', background: '#0a0a0a', color: '#fff', padding: '14px', display: 'flex', flexDirection: 'column' }}>
         <div style={{ fontWeight: 900, textAlign: 'center', padding: '12px 0' }}>NAWAZ ACADEMY<br/>TORAWARI</div>
-        <button onClick={() => { const id = Date.now().toString(); setChats(x => [{ id, title: "New Chat", msgs: [] },...x]); setActiveId(id) }} style={{ padding: '12px', background: '#1a1a1a', color: '#fff', borderRadius: '12px', border: '1px solid #222' }}>+ New Chat</button>
+        <button onClick={() => { const id = Date.now().toString(); setChats(x => [{ id, title: "New Chat", msgs: [] },...x]); setActiveId(id) }} style={{ padding: '12px', background: '#1a1a1a', color: '#fff', borderRadius: '12px', border: '1px solid #222', cursor: 'pointer' }}>+ New Chat</button>
         <div style={{ flex: 1, overflow: 'auto', marginTop: '14px' }}>{chats.map(c => <div key={c.id} onClick={() => setActiveId(c.id)} style={{ padding: '10px', borderRadius: '10px', background: activeId === c.id? '#1e1e1e' : 'transparent', marginBottom: '6px', cursor: 'pointer', fontSize: '13px' }}>{c.title}</div>)}</div>
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fbfbfb' }}>
-        <div style={{ background: '#000', color: '#fff', padding: '12px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>NAWAZ ACADEMY TORAWARI</div>
+        <div style={{ background: '#000', color: '#fff', padding: '12px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>NAWAZ ACADEMY TORAWARI - AI Tutor</div>
         <div style={{ flex: 1, overflow: 'auto', maxWidth: '900px', width: '100%', margin: '0 auto', padding: '20px 16px 120px' }}>
           {active?.msgs.map((m,i)=>(
             <div key={i} style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', flexDirection: 'column', alignItems: 'flex-end' }}>
-                {m.image && <img src={m.image} style={{ width: '120px', borderRadius: '12px', marginBottom: '6px' }} />}
+                {m.image && <img src={m.image} style={{ width: '120px', borderRadius: '12px', marginBottom: '6px', border: '1px solid #eee' }} />}
                 <div style={{ background: '#111', color: '#fff', padding: '10px 16px', borderRadius: '18px 18px 4px 18px', maxWidth: '80%' }}>{m.q}</div>
               </div>
               <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '12px' }}>
