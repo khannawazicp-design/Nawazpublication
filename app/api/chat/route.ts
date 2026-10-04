@@ -7,13 +7,10 @@ export async function POST(req: Request) {
     const msg = message || "";
     const lower = msg.toLowerCase();
 
-    const urduWords = ["kya","hai","kaise","ka","ki","ko","mein","yeh","wo","wala","samjhao","batao","thoda","kase","kese","gurda","dil"];
+    const urduWords = ["kya","hai","kaise","ka","ki","ko","mein","yeh","wo","wala","samjhao","batao","thoda","kase","kese","gurda","dil","zara"];
     const isUrdu = /[\u0600-\u06FF]/.test(msg) || urduWords.some(w => lower.includes(w));
-    const langRule = isUrdu
-     ? "Reply in Roman Urdu + Simple Urdu mix. Example: Mitosis mein 1 cell se 2 cells bante hain."
-      : "Reply in Simple ENGLISH ONLY.";
+    const langRule = isUrdu? "Reply in Roman Urdu + Simple Urdu mix." : "Reply in Simple ENGLISH ONLY.";
 
-    // Image wala
     if (image) {
       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -27,64 +24,44 @@ export async function POST(req: Request) {
         })
       });
       const d = await res.json();
-      const reply = d.choices?.[0]?.message?.content || "Image clear nahi";
-      return Response.json({ reply, needsDiagram: false, diagramType: null });
-    }
-
-    if (msg.trim().length < 3) {
-      return Response.json({ reply: "Assalam-o-Alaikum! Main NAWAZ ACADEMY TORAWARI hun.\n\n- NAWAZ ACADEMY TORAWARI", needsDiagram: false, diagramType: null });
+      return Response.json({ reply: d.choices?.[0]?.message?.content || "Image clear nahi", needsDiagram: false, diagramType: null });
     }
 
     let diagramType: string | null = null;
-    if (lower.includes("mitos") || lower.includes("mios") || lower.includes("meiosis")) diagramType = "cell";
-    else if (lower.includes("kidney") || lower.includes("gurda")) diagramType = "kidney";
+    if (lower.includes("mitos") || lower.includes("mios") || lower.includes("cell")) diagramType = "cell";
+    else if (lower.includes("kidney") || lower.includes("gurda") || lower.includes("kindny")) diagramType = "kidney";
     else if (lower.includes("heart") || lower.includes("dil")) diagramType = "heart";
     else if (lower.includes("photo")) diagramType = "photosynthesis";
+    else if (lower.includes("force") || lower.includes("newton") || lower.includes("f = ma")) diagramType = "force";
 
-    const systemPrompt = `You are NAWAZ ACADEMY TORAWARI - AI Tutor.
+    const systemPrompt = `You are NAWAZ ACADEMY TORAWARI.
     LANGUAGE RULE: ${langRule}
-    Topic: ${msg}
-    Format:
-    1. Definition
-    2. Detailed Concept (5 lines)
-    3. Process / Types
-    4. Example
-    5. Importance / Difference
-    Use $x^2$ for math. No **. End with - NAWAZ ACADEMY TORAWARI`;
+    MATH RULE (FOLLOW 100%):
+    - NEVER write \\text{kg} or \\,
+    - Write simple inside $ like $F = m a$, $F = 5 kg × 2 m/s² = 10 N$, $x² + 3x + 2 = 0$
+    - Matrix: $\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$
+    - Set: $A = {1, 2, 3}$
+    Give answer in 5 points: Definition, Concept, Formula/Process, Example, Importance.
+    End with - NAWAZ ACADEMY TORAWARI
+    Topic: ${msg}`;
 
-    // 3 Models ka backup system - 1 fail to 2nd, 2nd fail to 3rd
-    const models = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "openai/gpt-oss-20b"];
+    const models = ["llama-3.3-70b-versatile", "openai/gpt-oss-20b", "llama-3.1-8b-instant"];
     let finalReply = null;
-
     for (const model of models) {
       try {
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: model,
-            messages: [{ role: "system", content: systemPrompt }, { role: "user", content: msg }],
-            temperature: 0.5,
-            max_tokens: 1000
-          })
+          body: JSON.stringify({ model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: msg }], temperature: 0.4, max_tokens: 1200 })
         });
         const data = await res.json();
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-          finalReply = data.choices[0].message.content.replace(/\*\*/g, "");
-          break; // jawab mil gaya, loop khatam
-        }
-      } catch (e) {
-        continue; // is model se nahi hua to agla try karo
-      }
+        if (data.choices?.[0]?.message?.content) { finalReply = data.choices[0].message.content.replace(/\*\*/g,""); break; }
+      } catch { continue; }
     }
 
-    if (!finalReply) {
-      return Response.json({ reply: `Server thoda busy tha, lekin ab theek hai. Aap dobara "What is mitosis" likhein, ab jawab aayega.\n\n- NAWAZ ACADEMY TORAWARI`, needsDiagram: false, diagramType: null });
-    }
-
-    return Response.json({ reply: finalReply, needsDiagram:!!diagramType, diagramType: diagramType });
-
+    if (!finalReply) finalReply = "Server busy tha, dobara try karein - NAWAZ ACADEMY TORAWARI";
+    return Response.json({ reply: finalReply, needsDiagram:!!diagramType, diagramType });
   } catch (e: any) {
-    return Response.json({ reply: "Error: " + e.message + "\n\n- NAWAZ ACADEMY TORAWARI", needsDiagram: false, diagramType: null });
+    return Response.json({ reply: "Error: " + e.message, needsDiagram: false, diagramType: null });
   }
 }
