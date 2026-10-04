@@ -1,15 +1,21 @@
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
-    const key = process.env.GROQ_API_KEY;
     const lower = message.toLowerCase().trim();
 
-    // --- ڈبل لاک: یہاں سے Hi پر ڈایا گرام بند ---
-    const blockWords = ["hi", "hello", "salam", "hey", "thanks", "thank you", "ok", "bye", "kya haal", "joke"];
+    const blockWords = ["hi", "hello", "salam", "hey", "thanks", "thank you", "ok", "bye", "aoa", "assalam"];
     const isGreeting = blockWords.includes(lower) || lower.length <= 4;
 
-    const diagramWords = ["photosynthesis", "heart", "cell", "atom", "water cycle", "dna", "brain", "kidney", "plant", "leaf", "flower", "mitosis", "meiosis", "digestive", "respiration", "circuit", "structure", "diagram"];
-    const needsDiagram =!isGreeting && diagramWords.some(w => lower.includes(w));
+    if (isGreeting) {
+      return Response.json({
+        reply: `Assalam-o-Alaikum! I am NAWAZ AI ACADEMY.\nHow can I help you in your studies today?\n\n- NAWAZ AI ACADEMY`,
+        needsDiagram: false
+      });
+    }
+
+    const key = process.env.GROQ_API_KEY;
+    const diagramWords = ["photosynthesis", "heart", "cell", "atom", "water cycle", "dna", "brain", "kidney", "plant", "leaf", "flower", "mitosis", "digestive", "respiration", "circuit", "structure", "diagram"];
+    const needsDiagram = diagramWords.some(w => lower.includes(w));
 
     let level = "general";
     if (lower.includes("class 1") || lower.includes("class 2") || lower.includes("class 3")) level = "class 2-3";
@@ -17,7 +23,7 @@ export async function POST(req: Request) {
     else if (lower.includes("class 9") || lower.includes("class 10") || lower.includes("matric")) level = "class 10";
     else if (lower.includes("11") || lower.includes("12") || lower.includes("fsc")) level = "second year";
 
-    const systemPrompt = `You are NAWAZ AI ACADEMY. User level: ${level}. If greeting like hi/hello, give short friendly reply only, no points. For study: Definition, Key Points with numbers, Example. Never use **. At end add - NAWAZ AI ACADEMY`;
+    const systemPrompt = `You are NAWAZ AI ACADEMY. User level: ${level}. Explain topic in simple words: Definition, Key Points with numbers, Example. Never use **. End with - NAWAZ AI ACADEMY`;
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
