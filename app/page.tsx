@@ -7,14 +7,22 @@ type Chat = { id: string, title: string, msgs: Msg[] }
 function getBookDiagram(topic: string) {
   const t = topic.toLowerCase().trim()
   if (t.includes("photosynthesis")) {
-    return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Photosynthesis_en.svg/1024px-Photosynthesis_en.svg.png"
+    return "https://upload.wikimedia.org/wikipedia/commons/a/a5/Photosynthesis_en.svg"
   }
-  if (t.includes("heart")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Diagram_of_the_human_heart.svg/800px-Diagram_of_the_human_heart.svg.png"
-  if (t.includes("plant cell") || t.includes("cell")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Plant_cell_structure-en.svg/800px-Plant_cell_structure-en.svg.png"
-  if (t.includes("water cycle") || t.includes("water")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Water_cycle.svg/800px-Water_cycle.svg.png"
-  if (t.includes("dna")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/DNA_chemical_structure.svg/800px-DNA_chemical_structure.svg.png"
+  if (t.includes("heart")) {
+    return "https://upload.wikimedia.org/wikipedia/commons/5/55/Diagram_of_the_human_heart.svg"
+  }
+  if (t.includes("plant cell") || t.includes("animal cell") || t.includes("cell")) {
+    return "https://upload.wikimedia.org/wikipedia/commons/a/a7/Plant_cell_structure-en.svg"
+  }
+  if (t.includes("water cycle") || t.includes("water")) {
+    return "https://upload.wikimedia.org/wikipedia/commons/9/99/Water_cycle.svg"
+  }
+  if (t.includes("dna")) {
+    return "https://upload.wikimedia.org/wikipedia/commons/e/e4/DNA_chemical_structure.svg"
+  }
   const clean = topic.replace(/class \d+|diagram/gi,"").trim()
-  return `https://image.pollinations.ai/prompt/professional textbook diagram of ${encodeURIComponent(clean)} with arrows and labels explaining process, educational white background?width=1024&height=768&model=flux&nologo=true&seed=10`
+  return `https://image.pollinations.ai/prompt/textbook labeled diagram of ${encodeURIComponent(clean)} with arrows and labels, educational white background?width=1024&height=768&model=flux&nologo=true&seed=10`
 }
 
 function ColorfulAnswer({ text }: { text: string }) {
@@ -37,11 +45,11 @@ export default function Home() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const s = localStorage.getItem("nawaz_torawari_final_v2")
+    const s = localStorage.getItem("nawaz_torawari_final_v3")
     if (s) { const p = JSON.parse(s); setChats(p); setActiveId(p[0]?.id || "") }
     else { const id = Date.now().toString(); setChats([{ id, title: "New Chat", msgs: [] }]); setActiveId(id) }
   }, [])
-  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_torawari_final_v2", JSON.stringify(chats)) }, [chats])
+  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_torawari_final_v3", JSON.stringify(chats)) }, [chats])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chats])
 
   const active = chats.find(c => c.id === activeId)
