@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
     if (isGreeting) {
       return Response.json({
-        reply: `Assalam-o-Alaikum! I am NAWAZ AI ACADEMY.\nHow can I help you in your studies today?\n\n- NAWAZ AI ACADEMY`,
+        reply: `Assalam-o-Alaikum! Main NAWAZ ACADEMY TORAWARI hoon.\nAap kis class ka topic parhna chahte hain?\n\n- NAWAZ ACADEMY TORAWARI`,
         needsDiagram: false
       });
     }
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     else if (lower.includes("class 9") || lower.includes("class 10") || lower.includes("matric")) level = "class 10";
     else if (lower.includes("11") || lower.includes("12") || lower.includes("fsc")) level = "second year";
 
-    const systemPrompt = `You are NAWAZ AI ACADEMY. User level: ${level}. Explain topic in simple words: Definition, Key Points with numbers, Example. Never use **. End with - NAWAZ AI ACADEMY`;
+    const systemPrompt = `You are NAWAZ ACADEMY TORAWARI. User level: ${level}. Explain in simple words: Definition, Key Points with numbers, Example. Never use **. End with - NAWAZ ACADEMY TORAWARI`;
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
