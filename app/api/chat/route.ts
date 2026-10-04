@@ -3,10 +3,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { message, image } = body;
     const key = process.env.GROQ_API_KEY;
-    const lower = (message || "").toLowerCase();
+    const msg = message || "";
 
-    const isEnglish = /^[A-Za-z0-9\s\.\,\?\!\(\)\+\-\=\*\/\%]+$/.test(message || "") && (message || "").length > 4;
-    const langInstruction = isEnglish? "Reply in ENGLISH ONLY" : "Reply in simple Urdu + English mix (Roman Urdu)";
+    // ---- زبان کا صحیح پتہ لگانے والا سسٹم ----
+    const hasUrduScript = /[\u0600-\u06FF]/.test(msg);
+    const romanUrduWords = ["kya","hai","hain","kaise","ka","ki","ko","mein","main","yeh","wo","kaisa","tarah","samjhao","batao","kis","kyu","kyun","wala","wali","kro","karo"];
+    const lower = msg.toLowerCase();
+    const hasRomanUrdu = romanUrduWords.some(w => lower.includes(w));
+
+    let langInstruction = "";
+    if (hasUrduScript || hasRomanUrdu) {
+      langInstruction = "Reply in Urdu + English mix (Roman Urdu), simple for class 9-10 student. Use Urdu script if user used Urdu script, otherwise use Roman Urdu.";
+    } else {
+      langInstruction = "Reply in ENGLISH ONLY, simple English.";
+    }
 
     if (image) {
       const visionRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -15,45 +25,42 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           model: "meta-llama/llama-4-maverick-17b-128e-instruct",
           messages: [
-            { role: "system", content: `You are NAWAZ ACADEMY TORAWARI. ${langInstruction}. User uploaded an image. Explain in detail: Definition, Labeled Parts, How it works, Example. Use LaTeX for math like $x^2$. End with - NAWAZ ACADEMY TORAWARI. No **` },
+            { role: "system", content: `You are NAWAZ ACADEMY TORAWARI. ${langInstruction}. Explain image in detail. End with - NAWAZ ACADEMY TORAWARI` },
             { role: "user", content: [
-              { type: "text", text: message || "Is tasveer ko detail se samjhao" },
+              { type: "text", text: msg },
               { type: "image_url", image_url: { url: image } }
             ]}
           ]
         })
       });
       const visionData = await visionRes.json();
-      const reply = visionData.choices?.[0]?.message?.content?.replace(/\*\*/g, "") || "Image clear nahi hai";
+      const reply = visionData.choices?.[0]?.message?.content?.replace(/\*\*/g, "") || "Image clear nahi";
       return Response.json({ reply, needsDiagram: false, diagramPrompt: null });
     }
 
-    if (["hi","hello","salam","hey","aoa","thanks","ok","bye"].includes(lower) || lower.length < 4) {
+    if (["hi","hello","salam","hey","aoa","thanks","ok","bye"].includes(lower.trim()) || msg.trim().length < 4) {
       return Response.json({
-        reply: `Assalam-o-Alaikum! I am NAWAZ ACADEMY TORAWARI.\nAap sawal likhein, bol kar poochein ya kitaab ki tasveer bhejein. English mein poochein ge to English mein jawab dunga.\n\n- NAWAZ ACADEMY TORAWARI`,
-        needsDiagram: false,
-        diagramPrompt: null
+        reply: `السلام علیکم! میں NAWAZ ACADEMY TORAWARI ہوں۔\nآپ اردو یا انگلش میں سوال پوچھ سکتے ہیں۔\n\n- NAWAZ ACADEMY TORAWARI`,
+        needsDiagram: false, diagramPrompt: null
       });
     }
 
     const systemPrompt = `
-    You are NAWAZ ACADEMY TORAWARI, expert tutor.
-    User Language Rule: ${langInstruction}. User wrote: ${message}. You MUST follow language rule strictly.
+    You are NAWAZ ACADEMY TORAWARI.
+    LANGUAGE RULE (VERY IMPORTANT): ${langInstruction}
+    User wrote: "${msg}"
+    If user wrote Urdu or Roman Urdu (kya, hai, kaise), you MUST reply in Urdu/Roman Urdu mix.
+    If user wrote pure English, reply in English only.
 
-    Task 1: Give detailed answer in this format:
+    Give answer in this format:
     1. Definition
-    2. Detailed Concept (5-6 lines step by step)
-    3. Parts / Process / Formula (with LaTeX for math)
+    2. Tafseeli Tasawur (5-6 lines)
+    3. Process / Formula (Use $...$ for math)
     4. Example
     5. Importance
 
-    Task 2: For Math, MUST use LaTeX: Matrix $\\begin{pmatrix} 1 & 2 \\\\ 3 & 4 \\end{pmatrix}$, Equation $x^2 + 3x + 2 = 0$, Set $A = \\{1,2,3\\}$.
-
-    Task 3: Decide if diagram needed. If topic is science structure (heart, kidney, cell, photosynthesis, water cycle, atom, dna, brain etc) then needsDiagram=true and give short english prompt like "labeled diagram of human kidney showing cortex medulla nephron". If math or theory, needsDiagram=false.
-
-    Return ONLY JSON: {"reply": "your detailed answer", "needsDiagram": true/false, "diagramPrompt": "english prompt or null"}
-
-    Question: ${message}
+    Also decide if diagram needed. If science structure (kidney, heart, cell etc) then needsDiagram=true and give english prompt like "labeled diagram of human kidney".
+    Return ONLY JSON: {"reply": "...", "needsDiagram": true/false, "diagramPrompt": "... or null"}
     `;
 
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -62,7 +69,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model: "openai/gpt-oss-20b",
         response_format: { type: "json_object" },
-        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }]
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: msg }]
       })
     });
     const data = await res.json();
