@@ -11,55 +11,43 @@ function RealDiagram({ type }: { type: string }) {
         <div style={{ fontWeight: 900, textAlign: 'center', color: '#0ea5e9' }}>Force - F = m × a</div>
         <div style={{ background: '#f0f9ff', padding: '10px', borderRadius: '10px', marginTop: '8px', fontSize: '11px', textAlign: 'center', fontWeight: 700 }}>
           Box (5 kg) → Force 10 N → Acceleration 2 m/s²<br/>
-          <span style={{ color: '#0ea5e9' }}>F = m × a | Unit = kg·m/s² = N (Newton)</span>
+          <span style={{ color: '#0ea5e9' }}>F = m × a | Unit = N</span>
         </div>
         <div style={{ fontSize: '8px', textAlign: 'center', color: '#999', marginTop: '6px' }}>NAWAZ ACADEMY TORAWARI</div>
       </div>
     )
   }
-  if (t.includes("kidney") || t.includes("gurda")) {
-    return <div style={{ background: '#fff', border: '2px solid #f97316', borderRadius: '16px', padding: '14px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#f97316' }}>Human Kidney</div><div style={{ fontSize: '11px', background: '#fff7ed', padding: '8px', borderRadius: '8px', marginTop: '8px', lineHeight: '1.6' }}><b>Cortex:</b> Outer filtration<br/><b>Medulla:</b> Inner part<br/><b>Nephron:</b> 1 Million filters<br/><b>Ureter:</b> To bladder</div></div>
+  if (t.includes("kidney")) {
+    return <div style={{ background: '#fff', border: '2px solid #f97316', borderRadius: '16px', padding: '14px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#f97316' }}>Human Kidney</div><div style={{ fontSize: '11px', background: '#fff7ed', padding: '8px', borderRadius: '8px', marginTop: '8px' }}><b>Cortex:</b> Outer<br/><b>Medulla:</b> Inner<br/><b>Nephron:</b> 1 Million filters</div></div>
   }
   if (t.includes("photo")) {
-    return <div style={{ background: '#fff', border: '2px solid #16a34a', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#16a34a' }}>Photosynthesis</div><div style={{ background: '#f0fdf4', padding: '8px', borderRadius: '8px', marginTop: '8px', fontSize: '11px', textAlign: 'center' }}>☀️ + 💧 H₂O + 🌬️ CO₂ → 🍃 Leaf → Glucose + O₂<br/><span style={{ color: '#16a34a', fontWeight: 700 }}>6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂</span></div></div>
+    return <div style={{ background: '#fff', border: '2px solid #16a34a', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 900, textAlign: 'center', color: '#16a34a' }}>Photosynthesis</div><div style={{ background: '#f0fdf4', padding: '8px', borderRadius: '8px', marginTop: '8px', fontSize: '11px', textAlign: 'center' }}>☀️ + H₂O + CO₂ → Glucose + O₂</div></div>
   }
   if (t.includes("heart")) {
-    return <div style={{ background: '#fff', border: '2px solid #ef4444', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#ef4444' }}>Human Heart - 4 Chambers</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px', fontSize: '11px' }}><div style={{ background: '#fee2e2', padding: '8px', borderRadius: '8px' }}>Right Atrium</div><div style={{ background: '#fecaca', padding: '8px', borderRadius: '8px' }}>Left Atrium</div><div style={{ background: '#ef4444', color: '#fff', padding: '10px', borderRadius: '8px' }}>Right Ventricle</div><div style={{ background: '#b91c1c', color: '#fff', padding: '10px', borderRadius: '8px' }}>Left Ventricle</div></div></div>
+    return <div style={{ background: '#fff', border: '2px solid #ef4444', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#ef4444' }}>Heart - 4 Chambers</div><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginTop: '8px', fontSize: '11px' }}><div style={{ background: '#fee2e2', padding: '8px', borderRadius: '8px' }}>Right Atrium</div><div style={{ background: '#fecaca', padding: '8px', borderRadius: '8px' }}>Left Atrium</div><div style={{ background: '#ef4444', color: '#fff', padding: '10px', borderRadius: '8px' }}>Right Ventricle</div><div style={{ background: '#b91c1c', color: '#fff', padding: '10px', borderRadius: '8px' }}>Left Ventricle</div></div></div>
   }
-  if (t.includes("cell")) {
-    return <div style={{ background: '#fff', border: '2px solid #8b5cf6', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#8b5cf6' }}>Cell Structure</div><div style={{ border: '2px dashed #8b5cf6', borderRadius: '12px', padding: '12px', marginTop: '8px', background: '#faf5ff', fontSize: '11px' }}>Cell Membrane<br/>Nucleus (Control)<br/>Mitochondria (Powerhouse)<br/>Vacuole</div></div>
-  }
-  return <div style={{ background: '#fff', border: '2px solid #111', borderRadius: '16px', padding: '12px' }}><div style={{ fontWeight: 800, textAlign: 'center' }}>{type}</div></div>
+  return <div style={{ background: '#fff', border: '2px solid #8b5cf6', borderRadius: '16px', padding: '12px', textAlign: 'center' }}><div style={{ fontWeight: 900, color: '#8b5cf6' }}>Cell Structure</div><div style={{ border: '2px dashed #8b5cf6', borderRadius: '12px', padding: '12px', marginTop: '8px', background: '#faf5ff', fontSize: '11px' }}>Nucleus<br/>Mitochondria<br/>Cell Membrane</div></div>
 }
 
 function MathText({ text }: { text: string }) {
-  let clean = text.replace(/\\text\{([^}]+)\}/g, "$1").replace(/\\,/g, " ").replace(/\\times/g, " × ").replace(/\*\*/g, "");
-  const matrixRegex = /\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g;
-  clean = clean.replace(matrixRegex, (match, inner) => {
-    const rows = inner.trim().split("\\\\");
-    let html = `<div style="display:inline-block; vertical-align:middle; border-left:2px solid #111; border-right:2px solid #111; border-radius:8px; padding:4px 12px; margin:4px 6px; background:#f8fafc;">`;
-    rows.forEach((row: string) => {
-      const cols = row.split("&");
-      html += `<div style="display:flex; gap:20px; justify-content:center;">`;
-      cols.forEach((col: string) => { html += `<span style="min-width:20px; text-align:center; font-weight:700;">${col.trim()}</span>`; });
-      html += `</div>`;
-    });
-    html += `</div>`;
-    return `__MATRIX_START__${html}__MATRIX_END__`;
-  });
+  let clean = text
+  .replace(/\\\[/g, "\n").replace(/\\\]/g, "\n")
+  .replace(/\\\(/g, "").replace(/\\\)/g, "")
+  .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, "($1) / ($2)")
+  .replace(/\\lim_\{h\\to 0\}/g, "lim h→0 ")
+  .replace(/\\lim_\{([^}]+)\}/g, "lim $1 ")
+  .replace(/\\to/g, "→")
+  .replace(/\\text\{([^}]+)\}/g, "$1")
+  .replace(/\\,/g, " ")
+  .replace(/\^2/g, "²").replace(/\^3/g, "³")
+  .replace(/\*\*/g, "");
 
-  const parts = clean.split(/(\$[^$]+\$|__MATRIX_START__[\s\S]*?__MATRIX_END__)/g);
+  const parts = clean.split(/(\$[^$]+\$)/g);
   return (
-    <div style={{ whiteSpace: 'pre-wrap', lineHeight: '2', fontSize: '14.5px', color: '#1e293b' }}>
+    <div style={{ whiteSpace: 'pre-wrap', lineHeight: '2.1', fontSize: '14.5px', color: '#1e293b' }}>
       {parts.map((p, i) => {
-        if (p.startsWith("__MATRIX_START__")) {
-          const html = p.replace("__MATRIX_START__", "").replace("__MATRIX_END__", "");
-          return <span key={i} dangerouslySetInnerHTML={{ __html: html }} />;
-        }
         if (p.startsWith("$") && p.endsWith("$")) {
-          let inside = p.replaceAll("$", "").trim().replace(/\^2/g, "²").replace(/\^3/g, "³");
-          const isEq = inside.includes("=") || inside.includes("×");
-          return <span key={i} style={{ background: isEq? '#eef2ff' : '#f1f5f9', border: isEq? '1px solid #c7d2fe' : '1px solid #e2e8f0', padding: '3px 10px', borderRadius: '8px', fontFamily: 'serif', fontWeight: 800, color: '#1e1b4b', display: 'inline-block', margin: '2px' }}>{inside}</span>;
+          return <span key={i} style={{ background: '#eef2ff', border: '1px solid #c7d2fe', padding: '4px 10px', borderRadius: '10px', fontWeight: 800, fontFamily: 'serif', margin: '2px', display: 'inline-block', color: '#1e1b4b' }}>{p.replaceAll("$","")}</span>;
         }
         return <span key={i}>{p}</span>;
       })}
@@ -79,11 +67,11 @@ export default function Home() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const s = localStorage.getItem("nawaz_final_full_v5")
+    const s = localStorage.getItem("nawaz_final_full_v6")
     if (s) { const p = JSON.parse(s); setChats(p); setActiveId(p[0]?.id || "") }
     else { const id = Date.now().toString(); setChats([{ id, title: "New Chat", msgs: [] }]); setActiveId(id) }
   }, [])
-  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_final_full_v5", JSON.stringify(chats)) }, [chats])
+  useEffect(() => { if (chats.length) localStorage.setItem("nawaz_final_full_v6", JSON.stringify(chats)) }, [chats])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [chats])
   const active = chats.find(c => c.id === activeId)
 
