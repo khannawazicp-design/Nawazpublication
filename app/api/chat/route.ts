@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const msg = message || "";
     const lower = msg.toLowerCase();
 
-    const urduWords = ["kya","hai","kaise","ka","ki","ko","mein","yeh","samjhao","batao","gurda","dil","zara"];
+    const urduWords = ["kya","hai","kaise","ka","ki","ko","mein","yeh","samjhao","batao","gurda","dil","zara","thoda"];
     const isUrdu = /[\u0600-\u06FF]/.test(msg) || urduWords.some(w => lower.includes(w));
     const langRule = isUrdu? "Reply in Roman Urdu + Simple Urdu mix." : "Reply in Simple ENGLISH ONLY.";
 
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
         body: JSON.stringify({
           model: "meta-llama/llama-4-maverick-17b-128e-instruct",
           messages: [
-            { role: "system", content: `You are NAWAZ ACADEMY TORAWARI. ${langRule} End with - NAWAZ ACADEMY TORAWARI` },
+            { role: "system", content: `You are NAWAZ ACADEMY TORAWARI. ${langRule} Give detailed colorful answer. End with - NAWAZ ACADEMY TORAWARI` },
             { role: "user", content: [{ type: "text", text: msg }, { type: "image_url", image_url: { url: image } }] }
           ]
         })
@@ -31,14 +31,19 @@ export async function POST(req: Request) {
     if (lower.includes("kidney") || lower.includes("gurda")) diagramType = "kidney";
     else if (lower.includes("heart")) diagramType = "heart";
     else if (lower.includes("photo")) diagramType = "photosynthesis";
-    else if (lower.includes("force") || lower.includes("f = ma") || lower.includes("newton")) diagramType = "force";
+    else if (lower.includes("force") || lower.includes("f = ma")) diagramType = "force";
     else if (lower.includes("mitos") || lower.includes("cell") || lower.includes("derivative")) diagramType = "cell";
 
     const systemPrompt = `You are NAWAZ ACADEMY TORAWARI.
     LANGUAGE: ${langRule}
-    MATH RULE - BANNED: Never write \\frac, \\lim, \\to, \\text, \\(, \\), \\[ \\]
-    ALWAYS write simple: $f'(x) = lim h->0 [f(x+h) - f(x)] / h$, $f(x) = x²$, $F = 5 kg × 2 m/s² = 10 N$
-    Give 5 points answer. End with - NAWAZ ACADEMY TORAWARI
+
+    IMPORTANT RULES:
+    1. Give DETAILED answer like ChatGPT - minimum 300 words. Not short.
+    2. Use headings: Definition, Concept, Formula/Process, Example, Importance, Summary.
+    3. MATH RULE - BANNED: Never write \\frac, \\lim, \\to, \\text, \\(, \\)
+    4. ALWAYS write simple math: $f'(x) = lim h->0 [f(x+h) - f(x)] / h$, $F = m x a$, $F = 5 kg x 2 m/s² = 10 N$
+    5. End with - NAWAZ ACADEMY TORAWARI
+
     Topic: ${msg}`;
 
     const models = ["llama-3.3-70b-versatile", "openai/gpt-oss-20b", "llama-3.1-8b-instant"];
@@ -48,7 +53,7 @@ export async function POST(req: Request) {
         const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: msg }], temperature: 0.3, max_tokens: 1200 })
+          body: JSON.stringify({ model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: msg }], temperature: 0.5, max_tokens: 2000 })
         });
         const data = await res.json();
         if (data.choices?.[0]?.message?.content) { finalReply = data.choices[0].message.content.replace(/\*\*/g,""); break; }
