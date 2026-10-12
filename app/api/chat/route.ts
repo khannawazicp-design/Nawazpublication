@@ -1,121 +1,33 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.POLLINATIONS_API_KEY;
+    const { prompt } = await req.json();
+    const apiKey = process.env.POLLINATIONS_KEY || "";
 
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "POLLINATIONS_API_KEY Vercel mein set nahi hai." },
-        { status: 500 }
-      );
-    }
-
-    const { message, history = [], subject = "General", level = "School", image } =
-      await req.json();
-
-    if (!message && !image) {
-      return NextResponse.json(
-        { error: "Please apna sawal likhein ya image upload karein." },
-        { status: 400 }
-      );
-    }
-
-    const messages: any[] = [
-      {
-        role: "system",
-        content: `You are NawazPublication AI Tutor.
-Teach ${subject} at ${level} level.
-Explain in the user's language.
-Give detailed step-by-step answers with examples, formulas,
-and correct calculations when needed.
-For image questions, read the question carefully and solve it.
-If something in the image is unclear, ask the user to upload a clearer image.
-Use tables and simple diagram descriptions when helpful.
-Never invent unreadable text from an image.`,
+    const response = await fetch("https://text.pollinations.ai/openai", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+       ...(apiKey? { Authorization: `Bearer ${apiKey}` } : {}),
       },
-      ...history
-        .filter((item: any) =>
-          ["user", "assistant"].includes(item.role)
-        )
-        .slice(-10)
-        .map((item: any) => ({
-          role: item.role,
-          content: item.content,
-        })),
-    ];
-
-    const userContent: any[] = [];
-
-    if (message) {
-      userContent.push({
-        type: "text",
-        text: message,
-      });
-    }
-
-    if (image) {
-      userContent.push({
-        type: "image_url",
-        image_url: {
-          url: image,
-          detail: "high",
-        },
-      });
-    }
-
-    messages.push({
-      role: "user",
-      content: image ? userContent : message,
+      body: JSON.stringify({
+        model: "openai",
+        messages: [
+          {
+            role: "system",
+            content: `You are Nawaz AI Academy. RULES: 1. Detect user's script from "${prompt}" -> If Urdu script, answer in pure Urdu. If Roman Urdu, answer in Roman. If Hindi, answer in Hindi. If English, answer in English. 2. Explain very simple like for 10 year old, step by step, with colorful markdown, use ### for headings, > for important points, and LaTeX $$ for math.`
+          },
+          { role: "user", content: prompt }
+        ],
+      }),
     });
 
-    const response = await fetch(
-      "https://gen.pollinations.ai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "openai/gpt-5.4-nano",
-          messages,
-          temperature: 0.3,
-        }),
-      }
-    );
-
     const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Pollinations API error:", data);
-
-      return NextResponse.json(
-        {
-          error:
-            data?.error?.message ||
-            "AI service error. API key, model access, ya credits check karein.",
-        },
-        { status: 502 }
-      );
-    }
-
-    const answer = data?.choices?.[0]?.message?.content;
-
-    if (!answer) {
-      return NextResponse.json(
-        { error: "AI se jawab nahi mila. Dobara koshish karein." },
-        { status: 502 }
-      );
-    }
-
+    const answer = data.choices?.[0]?.message?.content || "Jawab nahi aya";
     return NextResponse.json({ answer });
-  } catch (error) {
-    console.error("Chat route error:", error);
 
-    return NextResponse.json(
-      { error: "Server error. Please dobara koshish karein." },
-      { status: 500 }
-    );
+  } catch (e) {
+    return NextResponse.json({ answer: "Server error, dobara koshish karen" }, { status: 500 });
   }
 }
