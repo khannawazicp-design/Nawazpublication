@@ -1,98 +1,120 @@
-
 import { NextResponse } from "next/server";
-
-const PRO_PROMPTS: Record<string, string> = {
-  math:
-    "Educational mathematics poster, clear formulas, correct step-by-step layout, textbook style, clean white background. Treat mathematical accuracy as essential: ",
-  science:
-    "Professional educational science illustration, clear scientific diagram, uncluttered white background, readable labels where possible: ",
-  islamic:
-    "Elegant Islamic educational poster, respectful design, beautiful geometric patterns. Do not invent Quranic verses or Hadith: ",
-  business:
-    "Modern professional advertisement poster, premium composition, clear space for readable Urdu or English text: ",
-  social:
-    "Eye-catching social media thumbnail, strong visual hierarchy, bold composition, high contrast: ",
-};
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const userPrompt = body.userPrompt;
-    const category = body.category;
-
-    if (
-      typeof userPrompt !== "string" ||
-      !userPrompt.trim() ||
-      userPrompt.length > 1500
-    ) {
-      return NextResponse.json(
-        { error: "براہ کرم درست ہدایات لکھیں (زیادہ سے زیادہ 1500 حروف)" },
-        { status: 400 }
-      );
-    }
-
-    if (
-      typeof category !== "string" ||
-      !Object.prototype.hasOwnProperty.call(PRO_PROMPTS, category)
-    ) {
-      return NextResponse.json(
-        { error: "پوسٹر کی قسم درست نہیں ہے" },
-        { status: 400 }
-      );
-    }
-
     const apiKey = process.env.POLLINATIONS_API_KEY;
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Image API key server پر configure نہیں ہے" },
+        { error: "POLLINATIONS_API_KEY Vercel mein set nahi hai." },
         { status: 500 }
       );
     }
 
-    const finalPrompt =
-      `${PRO_PROMPTS[category]} ${userPrompt.trim()}. ` +
-      "Professional educational design, balanced composition, high detail.";
+    const { message, history = [], subject = "General", level = "School", image } =
+      await req.json();
 
-    const url =
-      `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}` +
-      `?model=flux&width=1024&height=1024&nologo=true`;
+    if (!message && !image) {
+      return NextResponse.json(
+        { error: "Please apna sawal likhein ya image upload karein." },
+        { status: 400 }
+      );
+    }
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
+    const messages: any[] = [
+      {
+        role: "system",
+        content: `You are NawazPublication AI Tutor.
+Teach ${subject} at ${level} level.
+Explain in the user's language.
+Give detailed step-by-step answers with examples, formulas,
+and correct calculations when needed.
+For image questions, read the question carefully and solve it.
+If something in the image is unclear, ask the user to upload a clearer image.
+Use tables and simple diagram descriptions when helpful.
+Never invent unreadable text from an image.`,
       },
-      signal: AbortSignal.timeout(120000),
-      cache: "no-store",
+      ...history
+        .filter((item: any) =>
+          ["user", "assistant"].includes(item.role)
+        )
+        .slice(-10)
+        .map((item: any) => ({
+          role: item.role,
+          content: item.content,
+        })),
+    ];
+
+    const userContent: any[] = [];
+
+    if (message) {
+      userContent.push({
+        type: "text",
+        text: message,
+      });
+    }
+
+    if (image) {
+      userContent.push({
+        type: "image_url",
+        image_url: {
+          url: image,
+          detail: "high",
+        },
+      });
+    }
+
+    messages.push({
+      role: "user",
+      content: image ? userContent : message,
     });
 
+    const response = await fetch(
+      "https://gen.pollinations.ai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-5.4-nano",
+          messages,
+          temperature: 0.3,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
     if (!response.ok) {
-      console.error("Image provider status:", response.status);
+      console.error("Pollinations API error:", data);
+
       return NextResponse.json(
-        { error: "تصویر نہیں بن سکی۔ کچھ دیر بعد دوبارہ کوشش کریں۔" },
+        {
+          error:
+            data?.error?.message ||
+            "AI service error. API key, model access, ya credits check karein.",
+        },
         { status: 502 }
       );
     }
 
-    const contentType = response.headers.get("content-type") || "";
+    const answer = data?.choices?.[0]?.message?.content;
 
-    if (!contentType.startsWith("image/")) {
+    if (!answer) {
       return NextResponse.json(
-        { error: "Image service نے درست تصویر واپس نہیں کی" },
+        { error: "AI se jawab nahi mila. Dobara koshish karein." },
         { status: 502 }
       );
     }
 
-    const bytes = await response.arrayBuffer();
-    const base64 = Buffer.from(bytes).toString("base64");
-    const imageUrl = `data:${contentType};base64,${base64}`;
-
-    return NextResponse.json({ imageUrl });
+    return NextResponse.json({ answer });
   } catch (error) {
-    console.error("Generate Error:", error);
+    console.error("Chat route error:", error);
 
     return NextResponse.json(
-      { error: "درخواست مکمل نہیں ہو سکی۔ دوبارہ کوشش کریں۔" },
+      { error: "Server error. Please dobara koshish karein." },
       { status: 500 }
     );
   }
