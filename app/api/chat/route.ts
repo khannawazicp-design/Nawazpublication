@@ -1,28 +1,99 @@
+
 import { NextResponse } from "next/server";
 
-const PRO_PROMPTS: any = {
-  math: "You are a Math professor. Create 100% mathematically correct poster, show formula, step by step solution, clean white background, textbook style, no spelling mistake, 4k, ultra detailed: ",
-  science: "You are a Science illustrator. Create highly accurate labeled scientific diagram poster, white background, professional, 4k: ",
-  islamic: "You are Islamic designer. Create beautiful Islamic poster with 100% correct Arabic calligraphy, elegant pattern, 4k: ",
-  business: "You are a top advertising designer. Create modern commercial advertisement poster, bold readable Urdu English text, luxury premium look, 4k: ",
-  social: "You are viral social media designer. Create attractive YouTube thumbnail, bold 3D text, high contrast, 4k: ",
+const PRO_PROMPTS: Record<string, string> = {
+  math:
+    "Educational mathematics poster, clear formulas, correct step-by-step layout, textbook style, clean white background. Treat mathematical accuracy as essential: ",
+  science:
+    "Professional educational science illustration, clear scientific diagram, uncluttered white background, readable labels where possible: ",
+  islamic:
+    "Elegant Islamic educational poster, respectful design, beautiful geometric patterns. Do not invent Quranic verses or Hadith: ",
+  business:
+    "Modern professional advertisement poster, premium composition, clear space for readable Urdu or English text: ",
+  social:
+    "Eye-catching social media thumbnail, strong visual hierarchy, bold composition, high contrast: ",
 };
 
 export async function POST(req: Request) {
   try {
-    const { userPrompt, category } = await req.json();
+    const body = await req.json();
+    const userPrompt = body.userPrompt;
+    const category = body.category;
 
-    const basePrompt = PRO_PROMPTS[category] || PRO_PROMPTS.business;
-    const finalPrompt = `${basePrompt} ${userPrompt}. Professional, 4k, HD, no watermark, no error, highly detailed`;
+    if (
+      typeof userPrompt !== "string" ||
+      !userPrompt.trim() ||
+      userPrompt.length > 1500
+    ) {
+      return NextResponse.json(
+        { error: "براہ کرم درست ہدایات لکھیں (زیادہ سے زیادہ 1500 حروف)" },
+        { status: 400 }
+      );
+    }
 
-    // فری امیج API - اس میں کوئی Key نہیں چاہیے، اس لیے IP Error نہیں آئے گا
-    const encodedPrompt = encodeURIComponent(finalPrompt);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=true`;
+    if (
+      typeof category !== "string" ||
+      !Object.prototype.hasOwnProperty.call(PRO_PROMPTS, category)
+    ) {
+      return NextResponse.json(
+        { error: "پوسٹر کی قسم درست نہیں ہے" },
+        { status: 400 }
+      );
+    }
+
+    const apiKey = process.env.POLLINATIONS_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        { error: "Image API key server پر configure نہیں ہے" },
+        { status: 500 }
+      );
+    }
+
+    const finalPrompt =
+      `${PRO_PROMPTS[category]} ${userPrompt.trim()}. ` +
+      "Professional educational design, balanced composition, high detail.";
+
+    const url =
+      `https://gen.pollinations.ai/image/${encodeURIComponent(finalPrompt)}` +
+      `?model=flux&width=1024&height=1024&nologo=true`;
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+      signal: AbortSignal.timeout(120000),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      console.error("Image provider status:", response.status);
+      return NextResponse.json(
+        { error: "تصویر نہیں بن سکی۔ کچھ دیر بعد دوبارہ کوشش کریں۔" },
+        { status: 502 }
+      );
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+
+    if (!contentType.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Image service نے درست تصویر واپس نہیں کی" },
+        { status: 502 }
+      );
+    }
+
+    const bytes = await response.arrayBuffer();
+    const base64 = Buffer.from(bytes).toString("base64");
+    const imageUrl = `data:${contentType};base64,${base64}`;
 
     return NextResponse.json({ imageUrl });
+  } catch (error) {
+    console.error("Generate Error:", error);
 
-  } catch (error: any) {
-    console.log("Generate Error:", error);
-    return NextResponse.json({ error: "Poster generation failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "درخواست مکمل نہیں ہو سکی۔ دوبارہ کوشش کریں۔" },
+      { status: 500 }
+    );
   }
 }
