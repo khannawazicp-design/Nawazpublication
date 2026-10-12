@@ -1,44 +1,28 @@
 import { NextResponse } from "next/server";
 
+const PRO_PROMPTS: any = {
+  math: "You are a Math professor. Create 100% mathematically correct poster, show formula, step by step solution, clean white background, textbook style, no spelling mistake, 4k, ultra detailed: ",
+  science: "You are a Science illustrator. Create highly accurate labeled scientific diagram poster, white background, professional, 4k: ",
+  islamic: "You are Islamic designer. Create beautiful Islamic poster with 100% correct Arabic calligraphy, elegant pattern, 4k: ",
+  business: "You are a top advertising designer. Create modern commercial advertisement poster, bold readable Urdu English text, luxury premium look, 4k: ",
+  social: "You are viral social media designer. Create attractive YouTube thumbnail, bold 3D text, high contrast, 4k: ",
+};
+
 export async function POST(req: Request) {
   try {
     const { userPrompt, category } = await req.json();
 
-    if (!userPrompt) {
-      return NextResponse.json({ error: "Prompt خالی ہے" }, { status: 400 });
-    }
+    const basePrompt = PRO_PROMPTS[category] || PRO_PROMPTS.business;
+    const finalPrompt = `${basePrompt} ${userPrompt}. Professional, 4k, HD, no watermark, no error, highly detailed`;
 
-    // اگر API Key نہیں ہے تو ڈیمو امیج دے دو تاکہ سائٹ Crash نہ ہو
-    if (!process.env.STABILITY_API_KEY) {
-      console.log("API Key missing, returning demo");
-      return NextResponse.json({ 
-        imageUrl: `https://via.placeholder.com/1024x1024.png?text=${encodeURIComponent(userPrompt)}`,
-        demo: true 
-      });
-    }
+    // فری امیج API - اس میں کوئی Key نہیں چاہیے، اس لیے IP Error نہیں آئے گا
+    const encodedPrompt = encodeURIComponent(finalPrompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&enhance=true`;
 
-    const finalPrompt = `Professional poster for ${category}: ${userPrompt}, 4k, HD, no spelling mistake, academic style`;
-
-    const response = await fetch("https://api.stability.ai/v2beta/stable-image/generate/core", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.STABILITY_API_KEY}`,
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({ prompt: finalPrompt } as any)
-    });
-
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.message || "Image API Error");
-    }
-
-    return NextResponse.json({ imageUrl: data.image });
+    return NextResponse.json({ imageUrl });
 
   } catch (error: any) {
-    console.error(error);
-    // یہاں Crash ہونے کے بجائے Error واپس بھیجے گا
-    return NextResponse.json({ error: error.message, imageUrl: "" }, { status: 500 });
+    console.log("Generate Error:", error);
+    return NextResponse.json({ error: "Poster generation failed" }, { status: 500 });
   }
 }
