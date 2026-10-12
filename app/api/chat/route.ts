@@ -1,68 +1,28 @@
+import { NextResponse } from "next/server";
+
+const PRO_PROMPTS: any = {
+  math: `You are a world-class Mathematics professor and graphic designer. TASK: Create a 100% mathematically correct educational poster. RULES: 1. Verify the mathematical statement first. If user input is wrong, correct it. 2. Show Statement, Formula, Step-by-Step Solution. 3. No spelling mistakes. 4. Design: Academic, clean white background, black and blue text, with a clear graph/diagram. 4K resolution, professional textbook style. User Topic:`,
+  science: `You are a Science textbook illustrator. TASK: Create a highly accurate, labeled scientific diagram poster. RULES: 1. Labels must be 100% correct. 2. White background, professional colors, arrows clear. 3. Suitable for school and college books. 4K, ultra detailed. User Topic:`,
+  business: `You are a professional advertising designer from Canva Pro and Adobe. TASK: Create a modern, eye-catching, commercial advertisement poster. RULES: 1. Bold, readable Urdu and English text. 2. Premium colors, luxury look. 3. No spelling mistake in Urdu. 4. Looks like made by top agency. User Topic:`,
+  islamic: `You are an Islamic calligraphy and poster designer. TASK: Create a beautiful Islamic poster. RULES: 1. Arabic text 100% correct with Tashkeel. 2. Elegant Islamic pattern, mosque background. 3. Respectful and spiritual design. User Topic:`,
+  social: `You are a viral social media designer. TASK: Create a YouTube thumbnail / Instagram post. RULES: 1. Bold, catchy, 3D text. 2. High contrast, attractive. 3. Modern Gen-Z style. User Topic:`
+};
+
 export async function POST(req: Request) {
-  try {
-    const { message, image } = await req.json();
-    const key = process.env.GROQ_API_KEY;
-    if (!key) return Response.json({ reply: "GROQ_API_KEY Vercel mein nahi laga", needsDiagram: false, diagramType: null });
+  const { userPrompt, category } = await req.json();
+  const finalPrompt = `${PRO_PROMPTS[category]} ${userPrompt} -- Poster must be 4k, HD, professional, no watermark, no error`;
 
-    const msg = message || "";
-    const lower = msg.toLowerCase();
+  // یہاں آپ اپنا Image API لگائیں - Best for Urdu is Flux or Imagen 3
+  const response = await fetch("https://api.stability.ai/v2beta/stable-image/generate/core", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.STABILITY_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ prompt: finalPrompt, output_format: "png" })
+  });
 
-    const urduWords = ["kya","hai","kaise","ka","ki","ko","mein","yeh","samjhao","batao","gurda","dil","zara","thoda"];
-    const isUrdu = /[\u0600-\u06FF]/.test(msg) || urduWords.some(w => lower.includes(w));
-    const langRule = isUrdu? "Reply in Roman Urdu + Simple Urdu mix." : "Reply in Simple ENGLISH ONLY.";
-
-    if (image) {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "meta-llama/llama-4-maverick-17b-128e-instruct",
-          messages: [
-            { role: "system", content: `You are NAWAZ ACADEMY TORAWARI. ${langRule} Give detailed colorful answer. End with - NAWAZ ACADEMY TORAWARI` },
-            { role: "user", content: [{ type: "text", text: msg }, { type: "image_url", image_url: { url: image } }] }
-          ]
-        })
-      });
-      const d = await res.json();
-      return Response.json({ reply: d.choices?.[0]?.message?.content || "Image clear nahi", needsDiagram: false, diagramType: null });
-    }
-
-    let diagramType: string | null = null;
-    if (lower.includes("kidney") || lower.includes("gurda")) diagramType = "kidney";
-    else if (lower.includes("heart")) diagramType = "heart";
-    else if (lower.includes("photo")) diagramType = "photosynthesis";
-    else if (lower.includes("force") || lower.includes("f = ma")) diagramType = "force";
-    else if (lower.includes("mitos") || lower.includes("cell") || lower.includes("derivative")) diagramType = "cell";
-
-    const systemPrompt = `You are NAWAZ ACADEMY TORAWARI.
-    LANGUAGE: ${langRule}
-
-    IMPORTANT RULES:
-    1. Give DETAILED answer like ChatGPT - minimum 300 words. Not short.
-    2. Use headings: Definition, Concept, Formula/Process, Example, Importance, Summary.
-    3. MATH RULE - BANNED: Never write \\frac, \\lim, \\to, \\text, \\(, \\)
-    4. ALWAYS write simple math: $f'(x) = lim h->0 [f(x+h) - f(x)] / h$, $F = m x a$, $F = 5 kg x 2 m/s² = 10 N$
-    5. End with - NAWAZ ACADEMY TORAWARI
-
-    Topic: ${msg}`;
-
-    const models = ["llama-3.3-70b-versatile", "openai/gpt-oss-20b", "llama-3.1-8b-instant"];
-    let finalReply = null;
-    for (const model of models) {
-      try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${key}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: msg }], temperature: 0.5, max_tokens: 2000 })
-        });
-        const data = await res.json();
-        if (data.choices?.[0]?.message?.content) { finalReply = data.choices[0].message.content.replace(/\*\*/g,""); break; }
-      } catch { continue; }
-    }
-
-    if (!finalReply) finalReply = "Server busy, dobara try karein - NAWAZ ACADEMY TORAWARI";
-    return Response.json({ reply: finalReply, needsDiagram:!!diagramType, diagramType });
-  } catch (e: any) {
-    return Response.json({ reply: "Error: " + e.message, needsDiagram: false, diagramType: null });
-  }
+  const data = await response.json();
+  // آپ کے API کے حساب سے یہاں image URL آئے گا
+  return NextResponse.json({ imageUrl: data.image });
 }
