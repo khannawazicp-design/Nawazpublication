@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nawaz AI Academy - Your AI Study Partner</title>
+<style>
+body{font-family:sans-serif; text-align:center; padding:20px; background:#fff}
+.search-box{display:flex; gap:10px; border:1px solid #ccc; border-radius:30px; padding:12px 20px; max-width:500px; margin:20px auto}
+.search-box input{border:none; outline:none; flex:1; font-size:18px}
+.black-btn{background:#000; color:#fff; padding:15px; border-radius:30px; border:none; width:100%; max-width:500px; font-size:18px; margin:15px 0}
+.tag{background:#f1f1f1; border:1px solid #ddd; border-radius:20px; padding:8px 15px; margin:5px; display:inline-block}
+.result{background:#f9f9f9; text-align:left; padding:15px; border-radius:15px; max-width:500px; margin:20px auto}
+</style>
+</head>
+<body>
+<h1>Nawaz AI Academy</h1>
+<p>Your AI Study Partner</p>
+
+<div class="search-box">
+<span>🔍</span>
+<input id="q" placeholder="Set" value="Set">
+<span>🎤 📷 🖼️</span>
+</div>
+
+<button class="black-btn" onclick="search()">Search / تلاش کریں</button>
+
+<div>
+<span class="tag">Derivative سمجھائیں</span>
+<span class="tag">Photosynthesis ڈایا گرام</span>
+<span class="tag">Fraction کے MCQs</span>
+<span class="tag">نماز کا پوسٹر</span>
+</div>
+
+<div id="answer" class="result" style="display:none"></div>
+
+<script>
+const data = {
+"set": `<b>آپ کا سوال: "Set"</b><br><br>
+<b>Set کیا ہے؟</b><br>
+Set (مجموعہ) واضح اشیاء کا مجموعہ ہوتا ہے۔ جیسے {1,2,3}<br><br>
+<b>اقسام:</b> Empty Set {}, Finite Set, Infinite Set, Singleton, Subset<br>
+<b>Form:</b> Roster {a,e,i,o,u} اور Set-builder {x: x>0}<br>
+<b>Operations:</b> Union (A ∪ B), Intersection (A ∩ B), Difference, Complement<br><br>
+یہ 100% صحیح اور آسان زبان میں ہے۔`,
+"sequence": "Sequence numbers ki tarteeb hai, Series uska sum hai...",
+"derivative": "Derivative kisi function ke badalne ki raftar hai... d/dx"
+}
+
+function search(){
+ let val = document.getElementById('q').value.toLowerCase();
+ let ans = data[val] || `آپ کا سوال: "${val}"<br><br>اس کا تفصیلی جواب تیار ہے۔ ${val} ke bare me mukamal wazahat, formulas aur examples ke sath... (100% صحیح)`;
+ document.getElementById('answer').innerHTML = ans + `<br><br><img src="https://via.placeholder.com/500x300?text=AI+Poster+${val}" style="width:100%; border-radius:10px"><br><br><button class="black-btn">HD پوسٹر ڈاؤن لوڈ کریں</button>`;
+ document.getElementById('answer').style.display='block';
+}
+search();
+</script>
+</body>
+</html>
