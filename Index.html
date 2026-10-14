@@ -1,59 +1,76 @@
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nawaz AI Academy - Your AI Study Partner</title>
+<title>Nawaz AI Academy</title>
 <style>
-body{font-family:sans-serif; text-align:center; padding:20px; background:#fff}
-.search-box{display:flex; gap:10px; border:1px solid #ccc; border-radius:30px; padding:12px 20px; max-width:500px; margin:20px auto}
+body{font-family: Arial; text-align:center; padding:20px; background:#ffffff}
+.search-box{display:flex; align-items:center; gap:10px; border:1px solid #ccc; border-radius:30px; padding:12px 20px; max-width:500px; margin:20px auto}
 .search-box input{border:none; outline:none; flex:1; font-size:18px}
-.black-btn{background:#000; color:#fff; padding:15px; border-radius:30px; border:none; width:100%; max-width:500px; font-size:18px; margin:15px 0}
-.tag{background:#f1f1f1; border:1px solid #ddd; border-radius:20px; padding:8px 15px; margin:5px; display:inline-block}
-.result{background:#f9f9f9; text-align:left; padding:15px; border-radius:15px; max-width:500px; margin:20px auto}
+.black-btn{background:#000; color:#fff; padding:14px; border-radius:30px; border:none; width:100%; max-width:500px; font-size:18px; margin:10px 0; cursor:pointer}
+.tag{background:#f1f1f1; border:1px solid #ddd; border-radius:20px; padding:8px 15px; margin:5px; display:inline-block; font-size:14px}
+.result{background:#f9f9f9; text-align:left; padding:15px; border-radius:15px; max-width:500px; margin:20px auto; border:1px solid #eee}
 </style>
 </head>
 <body>
-<h1>Nawaz AI Academy</h1>
+
+<h2>Nawaz AI Academy</h2>
 <p>Your AI Study Partner</p>
 
 <div class="search-box">
 <span>🔍</span>
-<input id="q" placeholder="Set" value="Set">
-<span>🎤 📷 🖼️</span>
+<input id="q" placeholder="Search e.g. Set" value="Set">
 </div>
 
-<button class="black-btn" onclick="search()">Search / تلاش کریں</button>
+<button class="black-btn" onclick="doSearch()">Search / تلاش کریں</button>
 
 <div>
-<span class="tag">Derivative سمجھائیں</span>
-<span class="tag">Photosynthesis ڈایا گرام</span>
-<span class="tag">Fraction کے MCQs</span>
-<span class="tag">نماز کا پوسٹر</span>
+<span class="tag" onclick="setQ('Derivative')">Derivative سمجھائیں</span>
+<span class="tag" onclick="setQ('Set')">Set</span>
+<span class="tag" onclick="setQ('Photosynthesis')">Photosynthesis</span>
+<span class="tag" onclick="setQ('Fraction')">Fraction MCQs</span>
 </div>
 
 <div id="answer" class="result" style="display:none"></div>
 
 <script>
-const data = {
-"set": `<b>آپ کا سوال: "Set"</b><br><br>
-<b>Set کیا ہے؟</b><br>
-Set (مجموعہ) واضح اشیاء کا مجموعہ ہوتا ہے۔ جیسے {1,2,3}<br><br>
-<b>اقسام:</b> Empty Set {}, Finite Set, Infinite Set, Singleton, Subset<br>
-<b>Form:</b> Roster {a,e,i,o,u} اور Set-builder {x: x>0}<br>
-<b>Operations:</b> Union (A ∪ B), Intersection (A ∩ B), Difference, Complement<br><br>
-یہ 100% صحیح اور آسان زبان میں ہے۔`,
-"sequence": "Sequence numbers ki tarteeb hai, Series uska sum hai...",
-"derivative": "Derivative kisi function ke badalne ki raftar hai... d/dx"
+function setQ(v){
+ document.getElementById('q').value = v;
+ doSearch();
 }
 
-function search(){
- let val = document.getElementById('q').value.toLowerCase();
- let ans = data[val] || `آپ کا سوال: "${val}"<br><br>اس کا تفصیلی جواب تیار ہے۔ ${val} ke bare me mukamal wazahat, formulas aur examples ke sath... (100% صحیح)`;
- document.getElementById('answer').innerHTML = ans + `<br><br><img src="https://via.placeholder.com/500x300?text=AI+Poster+${val}" style="width:100%; border-radius:10px"><br><br><button class="black-btn">HD پوسٹر ڈاؤن لوڈ کریں</button>`;
- document.getElementById('answer').style.display='block';
+function doSearch(){
+ var input = document.getElementById('q').value;
+ var key = input.toLowerCase().trim();
+ var box = document.getElementById('answer');
+ box.style.display = 'block';
+ 
+ var content = "";
+ 
+ if(key.includes("set")){
+ content = "<b>آپ کا سوال: Set</b><br><br>" +
+ "<b>Set کیا ہے؟</b><br>Set ek well-defined collection hai distinct objects ka.<br><br>" +
+ "<b>Example:</b> Vowels = a, e, i, o, u<br><br>" +
+ "<b>Types:</b> Empty Set, Finite, Infinite, Singleton, Subset, Power Set, Universal Set<br><br>" +
+ "<b>Forms:</b> Roster Form and Set-builder Form<br><br>" +
+ "<b>Operations:</b> Union A U B, Intersection A n B, Difference, Complement<br><br>" +
+ "Ye 100% sahi aur asan zaban me hai.";
+ }
+ else if(key.includes("sequence")){
+ content = "<b>آپ کا سوال: Sequence</b><br><br>Sequence numbers ki tarteeb hai. Series uska sum hai. AP, GP, HP types hain.";
+ }
+ else {
+ content = "<b>آپ کا سوال: " + input + "</b><br><br>Is ka tafseeli jawab tayar hai. " + input + " ke bare me mukamal wazahat, formulas aur examples ke sath. Ye 100% sahi aur asan zaban me hai.";
+ }
+ 
+ var poster = "<br><br><div style='background:#eef; padding:20px; border-radius:10px; text-align:center'><b>AI Poster - " + input + "</b><br>Definition | Types | Examples | Formulas</div>";
+ var btn = "<br><br><button class='black-btn' onclick='alert(\"HD Poster Download - Coming Soon\")'>HD پوسٹر ڈاؤن لوڈ کریں</button>";
+ 
+ box.innerHTML = content + poster + btn;
 }
-search();
+doSearch();
 </script>
+
 </body>
 </html>
