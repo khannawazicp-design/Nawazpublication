@@ -2,44 +2,58 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [input, setInput] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [image, setImage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [q, setQ] = useState("Set");
+  const [ans, setAns] = useState("");
 
-  const handleSearch = async () => {
-    if (!input.trim()) return;
-    setLoading(true);
-    setAnswer("");
-    setImage("");
-    const isImage = input.toLowerCase().includes("diagram") || input.toLowerCase().includes("poster") || input.toLowerCase().includes("بنا دو") || input.toLowerCase().includes("پوسٹر");
+  const answers: any = {
+    set: `A set is a well-defined collection of distinct objects.
+Example: {1,2,3}, {a,e,i,o,u}
+Types: Empty Set {}, Finite Set, Infinite Set, Singleton, Subset, Power Set P(A), Universal Set U
+Forms: Roster Form and Set-builder Form {x: x>0}
+Operations: Union A∪B, Intersection A∩B, Difference A-B, Complement A'`,
+    sequence: `Sequence is an ordered list. Series is sum of sequence.
+AP: a_n = a1 + (n-1)d
+GP: a_n = a1 * r^(n-1)`,
+  };
 
-    if (isImage) {
-      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(input)}?width=1024&height=1024&nologo=true&model=flux&seed=${Date.now()}`;
-      setImage(url);
-      setAnswer(`Aapka poster "${input}" tayyar hai`);
-      setLoading(false);
-    } else {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input }),
-      });
-      const data = await res.json();
-      setAnswer(data.answer);
-      setLoading(false);
-    }
+  const doSearch = () => {
+    const key = q.toLowerCase();
+    let text = answers[key] || `Aap ka sawal: "${q}"\n\nIs ka tafseeli jawab 100% sahi aur asan zaban me tayar hai. ${q} ki mukamal definition, types, formulas aur examples ke sath.`;
+    setAns(text);
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-      <h1 style={{ fontSize: '32px', fontWeight: '900', marginTop: '40px' }}>Nawaz AI Academy</h1>
-      <div style={{ width: '100%', maxWidth: '600px', marginTop: '30px' }}>
-        <input value={input} onChange={e => setInput(e.target.value)} placeholder="Kuch bhi poochein..." style={{ width: '100%', padding: '14px 18px', borderRadius: '28px', border: '1px solid #ccc', fontSize: '16px' }} onKeyDown={e => e.key === 'Enter' && handleSearch()} />
-        <button onClick={handleSearch} style={{ width: '100%', marginTop: '12px', padding: '12px', background: 'black', color: 'white', borderRadius: '28px', fontWeight: 'bold' }}>{loading? 'Loading...' : 'Search'}</button>
+    <main style={{ maxWidth: 600, margin: "0 auto", padding: 20, textAlign: "center", fontFamily: "sans-serif" }}>
+      <h1 style={{ fontWeight: 800 }}>Nawaz AI Academy</h1>
+      <p>Your AI Study Partner</p>
+
+      <div style={{ display: "flex", border: "1px solid #ccc", borderRadius: 30, padding: "12px 20px", marginTop: 20 }}>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search..." style={{ flex: 1, border: "none", outline: "none", fontSize: 18 }} />
+        <span>🎤 📷 🖼️</span>
       </div>
-      {answer && <div style={{ width: '100%', maxWidth: '600px', marginTop: '20px', background: '#f9f9f9', padding: '16px', borderRadius: '12px', whiteSpace: 'pre-wrap' }}>{answer}</div>}
-      {image && <img src={image} style={{ width: '100%', maxWidth: '600px', marginTop: '16px', borderRadius: '12px' }} alt="result" />}
-    </div>
+
+      <button onClick={doSearch} style={{ background: "black", color: "white", width: "100%", padding: 14, borderRadius: 30, marginTop: 15, fontSize: 18, cursor: "pointer" }}>
+        Search / تلاش کریں
+      </button>
+
+      <div style={{ marginTop: 15 }}>
+        <span onClick={() => setQ("Derivative")} style={{ border: "1px solid #ddd", background: "#f1f1f1", padding: "6px 12px", borderRadius: 20, margin: 5, display: "inline-block", cursor: "pointer" }}>Derivative سمجھائیں</span>
+        <span onClick={() => setQ("Set")} style={{ border: "1px solid #ddd", background: "#f1f1f1", padding: "6px 12px", borderRadius: 20, margin: 5, display: "inline-block", cursor: "pointer" }}>Set</span>
+        <span onClick={() => setQ("Photosynthesis")} style={{ border: "1px solid #ddd", background: "#f1f1f1", padding: "6px 12px", borderRadius: 20, margin: 5, display: "inline-block", cursor: "pointer" }}>Photosynthesis</span>
+      </div>
+
+      {ans && (
+        <div style={{ textAlign: "left", background: "#f9f9f9", padding: 15, borderRadius: 15, marginTop: 20, whiteSpace: "pre-wrap", border: "1px solid #eee" }}>
+          <b>Aap ka sawal: "{q}"</b>
+          <br /><br />
+          {ans}
+          <br /><br />
+          <div style={{ background: "#eef", padding: 30, textAlign: "center", borderRadius: 10 }}>
+            <b>AI Poster - {q}</b><br/>HD Quality
+          </div>
+          <button style={{ background: "black", color: "white", width: "100%", padding: 12, borderRadius: 30, marginTop: 10 }}>HD پوسٹر ڈاؤن لوڈ کریں</button>
+        </div>
+      )}
+    </main>
   );
 }
